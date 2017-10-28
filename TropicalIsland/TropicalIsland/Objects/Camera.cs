@@ -22,9 +22,9 @@ namespace TropicalIsland.Objects
         public const float rotationSpeed = 0.4f;
         public const float moveSpeed = 50.0f;
 
-        public void Init(GraphicsDevice graphicsDevice)
+        public void Init(GraphicsDevice graphicsDevice, Vector3 begginingPosition)
         {
-            CamTarget = new Vector3(0.0f, 0.0f, 0f);
+            CamTarget = begginingPosition;
             CamPosition = new Vector3(0.0f, 0.0f, 100.0f);
             ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45f),
                                graphicsDevice.Viewport.AspectRatio, 1f, 1000f);
@@ -67,19 +67,19 @@ namespace TropicalIsland.Objects
             ////--------------------OBROTY LEWO PRAWO GORA DOL
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                upDownRotation += 0.01f;
+                upDownRotation += 0.02f;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                upDownRotation -= 0.01f;
+                upDownRotation -= 0.02f;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                leftRightRotation -= 0.01f;
+                leftRightRotation += 0.02f;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                leftRightRotation += 0.01f;
+                leftRightRotation -= 0.02f;
             }
 
             UpdatePosition(moveVector, gameTime);
