@@ -10,17 +10,23 @@ namespace TropicalIsland.Objects
 {
     public class Sphere
     {
+        public Matrix RotationMatrix;
+        public Matrix TranslationMatrix;
+        public Matrix ScaleMatrix;
         public float Radius;
         public Vector3 Center;
         public int Tessellation;
         public Color[] Colors;
 
-        public Sphere(float radius, Vector3 center, int tessellation)
+        public Sphere(float radius, Vector3 move, int tessellation, float rX = 0.0f, float rY = 0.0f, float rZ = 0.0f, float scale = 1.0f)
         {
             Radius = radius;
-            Center = center;
+            Center = new Vector3(0.0f, 0.0f, 0.0f);
             Tessellation = tessellation;
-            Colors = new Color[] { Color.Red, Color.Blue, Color.Green };
+            Colors = new Color[] { Color.Yellow, Color.LightYellow, Color.LightGoldenrodYellow };
+            RotationMatrix = Matrix.CreateRotationX(rX) * Matrix.CreateRotationY(rY) * Matrix.CreateRotationZ(rZ);
+            TranslationMatrix = Matrix.CreateTranslation(move);
+            ScaleMatrix = Matrix.CreateScale(scale);
         }
 
         public VertexPositionColor[] Init(bool isCutted = false)
@@ -40,6 +46,8 @@ namespace TropicalIsland.Objects
             vertices.Add(new VertexPositionColor(Vector3.Down * Radius, Colors[colorCounter % Colors.Length]));
             colorCounter++;
 
+            int tempCounter = 0;
+
             // Create rings of vertices at progressively higher latitudes.
             for (int i = 0; i < verticalSegments - 1; i++)
             {
@@ -48,7 +56,8 @@ namespace TropicalIsland.Objects
                 float dy = (float)Math.Sin(latitude);
                 float dxz = (float)Math.Cos(latitude);
 
-                // Create a single ring of vertices at this latitude.
+                // Create a single ring of vertices at this latitude.                
+
                 for (int j = 0; j < horizontalSegments; j++)
                 {
                     float longitude = j * MathHelper.TwoPi / horizontalSegments;
@@ -64,15 +73,20 @@ namespace TropicalIsland.Objects
             }
 
             // Finish with a single vertex at the top of the sphere.
+
             vertices.Add(new VertexPositionColor(Vector3.Up * Radius, Color.Red));
 
+
             // Create a fan connecting the bottom vertex to the bottom latitude ring.
+
             for (int i = 0; i < horizontalSegments; i++)
             {
                 indices.Add((ushort)0);
                 indices.Add((ushort)(1 + (i + 1) % horizontalSegments));
                 indices.Add((ushort)(1 + i));
             }
+
+            tempCounter = indices.Count;
 
             // Fill the sphere body with triangles joining each pair of latitude rings.
             for (int i = 0; i < verticalSegments - 2; i++)
@@ -90,6 +104,10 @@ namespace TropicalIsland.Objects
                     indices.Add((ushort)(1 + nextI * horizontalSegments + nextJ));
                     indices.Add((ushort)(1 + nextI * horizontalSegments + j));
                 }
+                if (i == 1)
+                {
+                    tempCounter = indices.Count;
+                }
             }
 
             // Create a fan connecting the top vertex to the top latitude ring.
@@ -101,12 +119,25 @@ namespace TropicalIsland.Objects
             }
 
             List<VertexPositionColor> triangleVertices = new List<VertexPositionColor>();
-            foreach (var i in indices)
+
+            int edge = indices.Count;
+            if (isCutted)
             {
-                triangleVertices.Add(vertices[i]);
+                edge = tempCounter;
+            }
+            for (int i = 0; i < edge; i++)
+            {
+                triangleVertices.Add(vertices[indices[i]]);
             }
 
-            return triangleVertices.ToArray();
+            Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
+            VertexPositionColor[] movedVertices = triangleVertices.ToArray();
+            for (int i = 0; i < movedVertices.Length; i++)
+            {
+                movedVertices[i].Position = Vector3.Transform(movedVertices[i].Position, finalMatrix);
+            }
+
+            return movedVertices;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using TropicalIsland.Objects;
 
 namespace TropicalIsland
@@ -25,14 +26,14 @@ namespace TropicalIsland
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.IsFullScreen = true;
+            //graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()
         {
             camera = new Camera();
-            camera.Init(GraphicsDevice, new Vector3(0.0f, 0.0f, -100.0f));
+            camera.Init(GraphicsDevice, new Vector3(0.0f, 0.0f, -20.0f));
             basicEffect = new BasicEffect(GraphicsDevice);
             basicEffect.Alpha = 1f;
             basicEffect.VertexColorEnabled = true;
@@ -46,9 +47,9 @@ namespace TropicalIsland
             vertexes.addObject(testCube, true);*/
 
             //Sphere
-            Sphere sphere = new Sphere(100.0f, new Vector3(0.0f, 0.0f, 0.0f), 16);
-            VertexPositionColor[] testSphere = sphere.Init();
-
+            Sphere sphere = new Sphere(100.0f, new Vector3(0.0f, 120.0f, 0.0f), 16, 0.0f, 0.0f, (float)Math.PI, 1.5f);
+            VertexPositionColor[] testSphere = sphere.Init(true);
+            
             vertexes.addObject(testSphere, true);
 
             base.Initialize();
@@ -87,7 +88,7 @@ namespace TropicalIsland
 
             //Turn off culling so we see both sides of our rendered triangle
             RasterizerState rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
+            rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
             GraphicsDevice.RasterizerState = rasterizerState;
 
             foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
