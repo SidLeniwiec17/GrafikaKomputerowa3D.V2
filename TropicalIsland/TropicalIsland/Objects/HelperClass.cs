@@ -63,6 +63,6 @@ namespace TropicalIsland.Objects
             temptriangleVertices.Add(new VertexPositionColor(new Vector3(10, -10, 20), Color.Blue));
 
             return temptriangleVertices.ToArray();
-        }
+        }        
     }
 }

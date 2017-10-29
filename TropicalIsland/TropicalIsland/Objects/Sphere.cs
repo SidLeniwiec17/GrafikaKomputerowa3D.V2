@@ -17,6 +17,7 @@ namespace TropicalIsland.Objects
         public Vector3 Center;
         public int Tessellation;
         public Color[] Colors;
+        public VertexPositionColor[] Vertexes;
 
         public Sphere(float radius, Vector3 move, int tessellation, float rX = 0.0f, float rY = 0.0f, float rZ = 0.0f, float scale = 1.0f)
         {
@@ -137,7 +138,8 @@ namespace TropicalIsland.Objects
                 movedVertices[i].Position = Vector3.Transform(movedVertices[i].Position, finalMatrix);
             }
 
-            return movedVertices;
+            Vertexes = movedVertices;
+            return Vertexes;
         }
     }
 }
