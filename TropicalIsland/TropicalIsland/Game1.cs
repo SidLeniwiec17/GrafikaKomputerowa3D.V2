@@ -16,11 +16,15 @@ namespace TropicalIsland
         SpriteBatch spriteBatch;
         Model palmModel;
         Texture2D palmTexture;
+        Model rockModel;
+        Texture2D rockTexture;
+
         Random random = new Random();
 
         //Camera
         Camera camera;
-        public List<Palm> palms;
+        public List<Object3D> palms;
+        public List<Object3D> rocks;
 
         //BasicEffect for rendering
         BasicEffect basicEffect;
@@ -45,7 +49,6 @@ namespace TropicalIsland
             basicEffect.LightingEnabled = false;
             basicEffect.PreferPerPixelLighting = true;
 
-
             vertexes = new Vertexes();
             vertexes.Init(GraphicsDevice);
 
@@ -54,8 +57,12 @@ namespace TropicalIsland
             VertexPositionColor[] testSphere = sphere.Init(true);
 
             //Palms
-            palms = new List<Palm>();
+            palms = new List<Object3D>();
             InitPalms();
+
+            //Rocks
+            rocks = new List<Object3D>();
+            InitRocks();
 
             vertexes.addObject(testSphere, true);
 
@@ -69,7 +76,7 @@ namespace TropicalIsland
                 float x = (i * 400.0f) - 900.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
                 float z = 0.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Palm(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
             }
 
             for (int i = 0; i < 3; i++)
@@ -77,7 +84,7 @@ namespace TropicalIsland
                 float x = (i * 400.0f) - 500.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1200.0f + GetRandomNumber(-100.0f, 0.0f);
                 float z = -600.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Palm(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
             }
 
             for (int i = 0; i < 4; i++)
@@ -85,8 +92,17 @@ namespace TropicalIsland
                 float x = (i * 400.0f) - 700.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
                 float z = 600.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Palm(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
             }
+        }
+
+        private void InitRocks()
+        {
+            rocks.Add(new Object3D(new Vector3(0.0f, -4.8f, 0.0f), 0.0f, 0.0f, 0.0f, 5.0f));
+            rocks.Add(new Object3D(new Vector3(-1.0f, -4.4f, 2.0f), 0.0f, 0.0f, 0.0f, 5.0f));
+            rocks.Add(new Object3D(new Vector3(2.0f, -8.0f, 15.0f), 0.0f, 0.0f, 0.0f, 5.0f));
+            rocks.Add(new Object3D(new Vector3(0.0f, -7.0f, 14.0f), 0.0f, 0.0f, 0.0f, 5.0f));
+            rocks.Add(new Object3D(new Vector3(-2.0f, -7.5f, 14.5f), 0.0f, 0.0f, 0.0f, 5.0f));
         }
 
         public float GetRandomNumber(float minimum, float maximum)
@@ -101,6 +117,8 @@ namespace TropicalIsland
             spriteBatch = new SpriteBatch(GraphicsDevice);
             palmModel = this.Content.Load<Model>("Models/MY_PALM");
             palmTexture = this.Content.Load<Texture2D>("Models/palm1_uv_m2");
+            rockModel = this.Content.Load<Model>("Models/Rock");
+            rockTexture = this.Content.Load<Texture2D>("Models/RockTexture");
         }
 
         protected override void UnloadContent()
@@ -145,6 +163,11 @@ namespace TropicalIsland
             foreach (var p in palms)
             {
                 p.Draw(palmModel, basicEffect, palmTexture);
+            }
+            
+            foreach (var r in rocks)
+            {
+                r.Draw(rockModel, basicEffect, rockTexture);
             }
 
             base.Draw(gameTime);

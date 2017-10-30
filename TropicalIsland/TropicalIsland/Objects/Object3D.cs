@@ -8,15 +8,14 @@ using System.Threading.Tasks;
 
 namespace TropicalIsland.Objects
 {
-    public class Palm
+    public class Object3D
     {
         public Matrix RotationMatrix;
         public Matrix TranslationMatrix;
         public Matrix ScaleMatrix;
         public Vector3 Position;
-        public VertexPositionColor[] Vertexes;
 
-        public Palm(Vector3 move, float rX = 0.0f, float rY = 0.0f, float rZ = 0.0f, float scale = 1.0f)
+        public Object3D(Vector3 move, float rX = 0.0f, float rY = 0.0f, float rZ = 0.0f, float scale = 1.0f)
         {
             Position = new Vector3(0.0f, 0.0f, 0.0f);
             RotationMatrix = Matrix.CreateRotationX(rX) * Matrix.CreateRotationY(rY) * Matrix.CreateRotationZ(rZ);
