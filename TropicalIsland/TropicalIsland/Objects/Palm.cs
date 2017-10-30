@@ -27,6 +27,7 @@ namespace TropicalIsland.Objects
         public void Draw(Model palm, BasicEffect basicEffect)
         {
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
+            Vector3 green = new Vector3(0.0f, 1.0f, 0.0f);
             foreach (var mesh in palm.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
@@ -34,6 +35,7 @@ namespace TropicalIsland.Objects
                     effect.World = basicEffect.World * finalMatrix;
                     effect.View = basicEffect.View;
                     effect.Projection = basicEffect.Projection;
+                    effect.EmissiveColor = green;
                 }
 
                 mesh.Draw();

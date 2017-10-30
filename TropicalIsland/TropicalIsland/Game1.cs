@@ -42,14 +42,10 @@ namespace TropicalIsland
             basicEffect.Alpha = 1f;
             basicEffect.VertexColorEnabled = true;
             basicEffect.LightingEnabled = false;
+            basicEffect.PreferPerPixelLighting = true;
 
             vertexes = new Vertexes();
             vertexes.Init(GraphicsDevice);
-
-            /*
-            VertexPositionColor[] testCube = HelperClass.initTestCube();
-            vertexes.addObject(testCube, true);
-            */
 
             //Sphere
             Sphere sphere = new Sphere(100.0f, new Vector3(0.0f, 120.0f, 0.0f), 16, 0.0f, 0.0f, (float)Math.PI, 1.5f);
