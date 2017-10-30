@@ -24,20 +24,23 @@ namespace TropicalIsland.Objects
             ScaleMatrix = Matrix.CreateScale(scale);
         }
 
-        public void Draw(Model palm, BasicEffect basicEffect)
+        public void Draw(Model palm, BasicEffect basicEffect, Texture2D palmTexture)
         {
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
             foreach (var mesh in palm.Meshes)
             {
+                
                 foreach (BasicEffect effect in mesh.Effects)
                 {
-                    effect.World = basicEffect.World * finalMatrix;
+                    effect.World = Matrix.Multiply(basicEffect.World, finalMatrix);
                     effect.View = basicEffect.View;
                     effect.Projection = basicEffect.Projection;
+                    effect.LightingEnabled = false;
+                    effect.TextureEnabled = true;
+                    effect.Texture = palmTexture;
                 }
-
                 mesh.Draw();
-            }           
+            }
         }
     }
 }

@@ -19,13 +19,13 @@ namespace TropicalIsland.Objects
 
         public float leftRightRotation = 0.0f;
         public float upDownRotation = 0.0f;
-        public const float rotationSpeed = 0.4f;
-        public const float moveSpeed = 50.0f;
+        public const float rotationSpeed = 0.5f;
+        public const float moveSpeed = 70.0f;
 
-        public void Init(GraphicsDevice graphicsDevice, Vector3 begginingPosition)
+        public void Init(GraphicsDevice graphicsDevice)
         {
-            CamTarget = begginingPosition;
-            CamPosition = new Vector3(0.0f, 0.0f, 100.0f);
+            CamTarget = new Vector3(0.0f, 0.0f, -1.0f);
+            CamPosition = new Vector3(0.0f, -25.0f, 100.0f);
             ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45f),
                                graphicsDevice.Viewport.AspectRatio, 1f, 1000f);
             ViewMatrix = Matrix.CreateLookAt(CamPosition, CamTarget,

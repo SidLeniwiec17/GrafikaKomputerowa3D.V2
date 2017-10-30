@@ -15,6 +15,7 @@ namespace TropicalIsland
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Model palmModel;
+        Texture2D palmTexture;
         Random random = new Random();
 
         //Camera
@@ -37,11 +38,12 @@ namespace TropicalIsland
         protected override void Initialize()
         {
             camera = new Camera();
-            camera.Init(GraphicsDevice, new Vector3(0.0f, 0.0f, -20.0f));
+            camera.Init(GraphicsDevice);
             basicEffect = new BasicEffect(GraphicsDevice);
             basicEffect.Alpha = 1f;
             basicEffect.VertexColorEnabled = true;
             basicEffect.LightingEnabled = false;
+
 
             vertexes = new Vertexes();
             vertexes.Init(GraphicsDevice);
@@ -70,7 +72,7 @@ namespace TropicalIsland
             {
                 float x = (i * 400.0f) - 900.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
-                float z = -600.0f + GetRandomNumber(-200.0f, 200.0f);
+                float z = 0.0f + GetRandomNumber(-200.0f, 200.0f);
                 palms.Add(new Palm(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
             }
 
@@ -78,7 +80,7 @@ namespace TropicalIsland
             {
                 float x = (i * 400.0f) - 500.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1200.0f + GetRandomNumber(-100.0f, 0.0f);
-                float z = -1200.0f + GetRandomNumber(-200.0f, 200.0f);
+                float z = -600.0f + GetRandomNumber(-200.0f, 200.0f);
                 palms.Add(new Palm(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
             }
 
@@ -86,7 +88,7 @@ namespace TropicalIsland
             {
                 float x = (i * 400.0f) - 700.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
-                float z = 0.0f + GetRandomNumber(-200.0f, 200.0f);
+                float z = 600.0f + GetRandomNumber(-200.0f, 200.0f);
                 palms.Add(new Palm(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
             }
         }
@@ -102,6 +104,7 @@ namespace TropicalIsland
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             palmModel = this.Content.Load<Model>("Models/MY_PALM");
+            palmTexture = this.Content.Load<Texture2D>("Models/palm1_uv_m2");
         }
 
         protected override void UnloadContent()
@@ -126,7 +129,7 @@ namespace TropicalIsland
             basicEffect.View = camera.ViewMatrix;
             basicEffect.World = camera.WorldMatrix;
 
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.MediumBlue);
             GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
 
             //Turn off culling so we see both sides of our rendered triangle
@@ -145,7 +148,7 @@ namespace TropicalIsland
 
             foreach (var p in palms)
             {
-                p.Draw(palmModel, basicEffect);
+                p.Draw(palmModel, basicEffect, palmTexture);
             }
 
             base.Draw(gameTime);
