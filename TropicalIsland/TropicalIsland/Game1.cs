@@ -35,12 +35,24 @@ namespace TropicalIsland
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            //graphics.IsFullScreen = true;
+            graphics.IsFullScreen = false;
+            if (graphics.IsFullScreen)
+            {
+                graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
+                graphics.PreferredBackBufferHeight = 1080;   // set this value to the desired height of your window
+            }
+            else
+            {
+                graphics.PreferredBackBufferWidth = 1920/2;  // set this value to the desired width of your window
+                graphics.PreferredBackBufferHeight = 1080/2;   // set this value to the desired height of your window
+            }
+            graphics.ApplyChanges();
+
             Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()
-        {
+        {   
             camera = new Camera();
             camera.Init(GraphicsDevice);
             basicEffect = new BasicEffect(GraphicsDevice);
