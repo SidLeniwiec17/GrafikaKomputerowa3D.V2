@@ -12,6 +12,7 @@ namespace TropicalIsland
     /// </summary>
     public class Game1 : Game
     {
+        bool useDefaultBasicEffect = true;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Model palmModel;
@@ -29,12 +30,15 @@ namespace TropicalIsland
         //BasicEffect for rendering
         BasicEffect basicEffect;
 
+        Effect custom_effect;
+
         //Geometric info
         Vertexes vertexes;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.GraphicsProfile = GraphicsProfile.HiDef;
             graphics.IsFullScreen = false;
             if (graphics.IsFullScreen)
             {
@@ -43,8 +47,8 @@ namespace TropicalIsland
             }
             else
             {
-                graphics.PreferredBackBufferWidth = 1920/2;  // set this value to the desired width of your window
-                graphics.PreferredBackBufferHeight = 1080/2;   // set this value to the desired height of your window
+                graphics.PreferredBackBufferWidth = 1920 / 2;  // set this value to the desired width of your window
+                graphics.PreferredBackBufferHeight = 1080 / 2;   // set this value to the desired height of your window
             }
             graphics.ApplyChanges();
 
@@ -52,7 +56,7 @@ namespace TropicalIsland
         }
 
         protected override void Initialize()
-        {   
+        {
             camera = new Camera();
             camera.Init(GraphicsDevice);
             basicEffect = new BasicEffect(GraphicsDevice);
@@ -66,7 +70,7 @@ namespace TropicalIsland
 
             //Sphere
             Sphere sphere = new Sphere(100.0f, new Vector3(0.0f, 120.0f, 0.0f), 16, 0.0f, 0.0f, (float)Math.PI, 1.5f);
-            VertexPositionColor[] testSphere = sphere.Init(true);
+            VertexPositionNormalTexture[] testSphere = sphere.Init(true);
 
             //Palms
             palms = new List<Object3D>();
@@ -88,7 +92,7 @@ namespace TropicalIsland
                 float x = (i * 400.0f) - 900.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
                 float z = 0.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.045f));
             }
 
             for (int i = 0; i < 3; i++)
@@ -96,7 +100,7 @@ namespace TropicalIsland
                 float x = (i * 400.0f) - 500.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1200.0f + GetRandomNumber(-100.0f, 0.0f);
                 float z = -600.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.2f, 0.0f, 0.045f));
             }
 
             for (int i = 0; i < 4; i++)
@@ -104,7 +108,7 @@ namespace TropicalIsland
                 float x = (i * 400.0f) - 700.0f + GetRandomNumber(-200.0f, 200.0f);
                 float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
                 float z = 600.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, 0.0f, 0.0f, 0.045f));
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.045f));
             }
         }
 
@@ -131,6 +135,9 @@ namespace TropicalIsland
             palmTexture = this.Content.Load<Texture2D>("Models/palm1_uv_m2");
             rockModel = this.Content.Load<Model>("Models/Rock");
             rockTexture = this.Content.Load<Texture2D>("Models/RockTexture");
+            //custom_effect = this.Content.Load<Effect>("Shaders/ambient");
+            //custom_effect = this.Content.Load<Effect>("Shaders/diffuse");
+            custom_effect = this.Content.Load<Effect>("Shaders/texturing");
         }
 
         protected override void UnloadContent()
@@ -151,10 +158,6 @@ namespace TropicalIsland
 
         protected override void Draw(GameTime gameTime)
         {
-            basicEffect.Projection = camera.ProjectionMatrix;
-            basicEffect.View = camera.ViewMatrix;
-            basicEffect.World = camera.WorldMatrix;
-
             GraphicsDevice.Clear(Color.MediumBlue);
             GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
 
@@ -163,26 +166,66 @@ namespace TropicalIsland
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                if (vertexes.vertexBuffer != null)
-                {
-                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexes.vertexBuffer.VertexCount);
-                }
-            }
-
-            foreach (var p in palms)
-            {
-                p.Draw(palmModel, basicEffect, palmTexture);
-            }
-            
-            foreach (var r in rocks)
-            {
-                r.Draw(rockModel, basicEffect, rockTexture);
-            }
+            DrawScene();
 
             base.Draw(gameTime);
+        }
+
+        public void DrawScene()
+        {
+            if(useDefaultBasicEffect)
+            {
+                basicEffect.Projection = camera.ProjectionMatrix;
+                basicEffect.View = camera.ViewMatrix;
+                basicEffect.World = camera.WorldMatrix;
+                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexes.vertexBuffer.VertexCount);
+                    }
+                }
+
+                foreach (var p in palms)
+                {
+                    p.Draw(palmModel, basicEffect, palmTexture);
+                }
+                foreach (var r in rocks)
+                {
+                    r.Draw(rockModel, basicEffect, rockTexture);
+                }
+            }
+            else
+            {                
+                custom_effect.Parameters["World"].SetValue(camera.WorldMatrix);
+                custom_effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                custom_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+                custom_effect.Parameters["AmbientIntensity"].SetValue(0.6f);
+
+                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexes.vertexBuffer.VertexCount);
+                    }
+                }
+
+                foreach (var p in palms)
+                {
+                    p.DrawModelWithEffect(palmModel, camera, custom_effect, palmTexture);
+                }
+
+                basicEffect.Projection = camera.ProjectionMatrix;
+                basicEffect.View = camera.ViewMatrix;
+                basicEffect.World = camera.WorldMatrix;
+                foreach (var r in rocks)
+                {
+                    r.Draw(rockModel, basicEffect, rockTexture);
+                }
+            }
         }
     }
 }

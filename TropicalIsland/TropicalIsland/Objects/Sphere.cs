@@ -17,7 +17,7 @@ namespace TropicalIsland.Objects
         public Vector3 Center;
         public int Tessellation;
         public Color[] Colors;
-        public VertexPositionColor[] Vertexes;
+        public VertexPositionNormalTexture[] Vertexes;
 
         public Sphere(float radius, Vector3 move, int tessellation, float rX = 0.0f, float rY = 0.0f, float rZ = 0.0f, float scale = 1.0f)
         {
@@ -30,10 +30,10 @@ namespace TropicalIsland.Objects
             ScaleMatrix = Matrix.CreateScale(scale);
         }
 
-        public VertexPositionColor[] Init(bool isCutted = false)
+        public VertexPositionNormalTexture[] Init(bool isCutted = false)
         {
             int colorCounter = 0;
-            List<VertexPositionColor> vertices = new List<VertexPositionColor>();
+            List<VertexPositionNormalTexture> vertices = new List<VertexPositionNormalTexture>();
             List<ushort> indices = new List<ushort>();
 
             if (Tessellation < 3)
@@ -44,7 +44,7 @@ namespace TropicalIsland.Objects
 
 
             // Start with a single vertex at the bottom of the sphere.
-            vertices.Add(new VertexPositionColor(Vector3.Down * Radius, Colors[colorCounter % Colors.Length]));
+            vertices.Add(new VertexPositionNormalTexture(Vector3.Down * Radius, Vector3.Down * Radius, new Vector2(0.0f, 0.0f)));
             colorCounter++;
 
             int tempCounter = 0;
@@ -68,14 +68,14 @@ namespace TropicalIsland.Objects
 
                     Vector3 normal = new Vector3(dx, dy, dz);
 
-                    vertices.Add(new VertexPositionColor(normal * Radius, Colors[colorCounter % Colors.Length]));
+                    vertices.Add(new VertexPositionNormalTexture(normal * Radius, normal * Radius, new Vector2(0.0f, 0.0f)));
                     colorCounter++;
                 }
             }
 
             // Finish with a single vertex at the top of the sphere.
 
-            vertices.Add(new VertexPositionColor(Vector3.Up * Radius, Color.Red));
+            vertices.Add(new VertexPositionNormalTexture(Vector3.Up * Radius, Vector3.Up * Radius, new Vector2(0.0f, 0.0f)));
 
 
             // Create a fan connecting the bottom vertex to the bottom latitude ring.
@@ -119,7 +119,7 @@ namespace TropicalIsland.Objects
                 indices.Add((ushort)(vertices.Count - 2 - i));
             }
 
-            List<VertexPositionColor> triangleVertices = new List<VertexPositionColor>();
+            List<VertexPositionNormalTexture> triangleVertices = new List<VertexPositionNormalTexture>();
 
             int edge = indices.Count;
             if (isCutted)
@@ -132,7 +132,7 @@ namespace TropicalIsland.Objects
             }
 
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
-            VertexPositionColor[] movedVertices = triangleVertices.ToArray();
+            VertexPositionNormalTexture[] movedVertices = triangleVertices.ToArray();
             for (int i = 0; i < movedVertices.Length; i++)
             {
                 movedVertices[i].Position = Vector3.Transform(movedVertices[i].Position, finalMatrix);

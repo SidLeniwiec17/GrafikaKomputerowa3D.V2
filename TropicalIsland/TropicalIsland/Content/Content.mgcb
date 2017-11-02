@@ -75,3 +75,21 @@
 /processorParam:TextureFormat=Color
 /build:Models/RockTexture.jpg
 
+#begin Shaders/ambient.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/ambient.fx
+
+#begin Shaders/diffuse.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/diffuse.fx
+
+#begin Shaders/texturing.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/texturing.fx
+

@@ -9,7 +9,7 @@ namespace TropicalIsland.Objects
 {
     public class Vertexes
     {
-        public VertexPositionColor[] triangleVertices;
+        public VertexPositionNormalTexture[] triangleVertices;
         public VertexBuffer vertexBuffer;
         public GraphicsDevice graphicsDevice;
 
@@ -18,9 +18,9 @@ namespace TropicalIsland.Objects
             graphicsDevice = _graphicsDevice;            
         }
 
-        public void addObject(VertexPositionColor[] newObject)
-        {            
-            VertexPositionColor[] newtriangleVertices = new VertexPositionColor[triangleVertices.Length + newObject.Length];
+        public void addObject(VertexPositionNormalTexture[] newObject)
+        {
+            VertexPositionNormalTexture[] newtriangleVertices = new VertexPositionNormalTexture[triangleVertices.Length + newObject.Length];
             newtriangleVertices = triangleVertices;
             int counter = 0;
             foreach (var v in newObject)
@@ -29,22 +29,22 @@ namespace TropicalIsland.Objects
                 counter++;
             }
             VertexBuffer newvertexBuffer = new VertexBuffer(graphicsDevice, typeof(
-                           VertexPositionColor), newtriangleVertices.Length, BufferUsage.
+                           VertexPositionNormalTexture), newtriangleVertices.Length, BufferUsage.
                            WriteOnly);
-            newvertexBuffer.SetData<VertexPositionColor>(newtriangleVertices);
+            newvertexBuffer.SetData<VertexPositionNormalTexture>(newtriangleVertices);
             triangleVertices = newtriangleVertices;
             vertexBuffer = newvertexBuffer;
         }
 
-        public void addObject(VertexPositionColor[] newObject, bool isFirst)
+        public void addObject(VertexPositionNormalTexture[] newObject, bool isFirst)
         {
             if (isFirst)
             {
                 VertexBuffer newvertexBuffer = new VertexBuffer(graphicsDevice, typeof(
-                               VertexPositionColor), newObject.Length, BufferUsage.
+                               VertexPositionNormalTexture), newObject.Length, BufferUsage.
                                WriteOnly);
-                newvertexBuffer.SetData<VertexPositionColor>(newObject);
-                triangleVertices = new VertexPositionColor[newObject.Length];
+                newvertexBuffer.SetData<VertexPositionNormalTexture>(newObject);
+                triangleVertices = new VertexPositionNormalTexture[newObject.Length];
                 vertexBuffer = newvertexBuffer;
             }
             else

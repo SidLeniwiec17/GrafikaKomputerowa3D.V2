@@ -23,10 +23,10 @@ namespace TropicalIsland.Objects
             ScaleMatrix = Matrix.CreateScale(scale);
         }
 
-        public void Draw(Model palm, BasicEffect basicEffect, Texture2D palmTexture)
+        public void Draw(Model model, BasicEffect basicEffect, Texture2D palmTexture)
         {
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
-            foreach (var mesh in palm.Meshes)
+            foreach (var mesh in model.Meshes)
             {
                 
                 foreach (BasicEffect effect in mesh.Effects)
@@ -37,6 +37,27 @@ namespace TropicalIsland.Objects
                     effect.LightingEnabled = false;
                     effect.TextureEnabled = true;
                     effect.Texture = palmTexture;
+                }
+                mesh.Draw();
+            }
+        }
+
+        public void DrawModelWithEffect(Model model, Camera camera, Effect effect ,Texture2D modelTexture)
+        {
+            Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(mesh.ParentBone.Transform * finalMatrix  * camera.WorldMatrix));
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {                                  
+                    part.Effect = effect;
+                    effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
+                    effect.Parameters["World"].SetValue(finalMatrix * camera.WorldMatrix * mesh.ParentBone.Transform);
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+                    effect.Parameters["AmbientIntensity"].SetValue(0.25f);
+                    effect.Parameters["ModelTexture"].SetValue(modelTexture);
                 }
                 mesh.Draw();
             }
