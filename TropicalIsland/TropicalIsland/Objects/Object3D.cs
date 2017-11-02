@@ -28,7 +28,6 @@ namespace TropicalIsland.Objects
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
             foreach (var mesh in model.Meshes)
             {
-                
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.World = Matrix.Multiply(basicEffect.World, finalMatrix);
@@ -42,14 +41,14 @@ namespace TropicalIsland.Objects
             }
         }
 
-        public void DrawModelWithEffect(Model model, Camera camera, Effect effect ,Texture2D modelTexture)
+        public void DrawModelWithEffect(Model model, Camera camera, Effect effect, Texture2D modelTexture)
         {
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
             foreach (ModelMesh mesh in model.Meshes)
             {
-                Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(mesh.ParentBone.Transform * finalMatrix  * camera.WorldMatrix));
+                Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(mesh.ParentBone.Transform * finalMatrix * camera.WorldMatrix));
                 foreach (ModelMeshPart part in mesh.MeshParts)
-                {                                  
+                {
                     part.Effect = effect;
                     effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
                     effect.Parameters["World"].SetValue(finalMatrix * camera.WorldMatrix * mesh.ParentBone.Transform);
@@ -58,6 +57,8 @@ namespace TropicalIsland.Objects
                     effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
                     effect.Parameters["AmbientIntensity"].SetValue(0.25f);
                     effect.Parameters["ModelTexture"].SetValue(modelTexture);
+                    effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
+
                 }
                 mesh.Draw();
             }

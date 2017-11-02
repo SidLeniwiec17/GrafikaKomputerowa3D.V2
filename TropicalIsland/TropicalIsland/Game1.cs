@@ -12,7 +12,8 @@ namespace TropicalIsland
     /// </summary>
     public class Game1 : Game
     {
-        bool useDefaultBasicEffect = true;
+        bool useDefaultBasicEffect = false;
+        bool IsFullScreen = true;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Model palmModel;
@@ -39,7 +40,7 @@ namespace TropicalIsland
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
-            graphics.IsFullScreen = false;
+            graphics.IsFullScreen = IsFullScreen;
             if (graphics.IsFullScreen)
             {
                 graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
@@ -60,7 +61,7 @@ namespace TropicalIsland
             camera = new Camera();
             camera.Init(GraphicsDevice);
             basicEffect = new BasicEffect(GraphicsDevice);
-            basicEffect.Alpha = 1f;
+            basicEffect.Alpha = 1.0f;
             basicEffect.VertexColorEnabled = true;
             basicEffect.LightingEnabled = false;
             basicEffect.PreferPerPixelLighting = true;
@@ -135,8 +136,6 @@ namespace TropicalIsland
             palmTexture = this.Content.Load<Texture2D>("Models/palm1_uv_m2");
             rockModel = this.Content.Load<Model>("Models/Rock");
             rockTexture = this.Content.Load<Texture2D>("Models/RockTexture");
-            //custom_effect = this.Content.Load<Effect>("Shaders/ambient");
-            //custom_effect = this.Content.Load<Effect>("Shaders/diffuse");
             custom_effect = this.Content.Load<Effect>("Shaders/texturing");
         }
 
@@ -158,7 +157,7 @@ namespace TropicalIsland
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.MediumBlue);
+            GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
 
             //Turn off culling so we see both sides of our rendered triangle
@@ -169,15 +168,19 @@ namespace TropicalIsland
             DrawScene();
 
             base.Draw(gameTime);
-        }
+        }        
 
         public void DrawScene()
         {
-            if(useDefaultBasicEffect)
+            Texture2D mySolidColorTexture = new SolidColorTexture(GraphicsDevice, Color.Yellow);
+            if (useDefaultBasicEffect)
             {
+                basicEffect.VertexColorEnabled = true;
+                basicEffect.LightingEnabled = true;
                 basicEffect.Projection = camera.ProjectionMatrix;
                 basicEffect.View = camera.ViewMatrix;
                 basicEffect.World = camera.WorldMatrix;
+
                 foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
@@ -197,12 +200,14 @@ namespace TropicalIsland
                 }
             }
             else
-            {                
+            {
                 custom_effect.Parameters["World"].SetValue(camera.WorldMatrix);
                 custom_effect.Parameters["View"].SetValue(camera.ViewMatrix);
                 custom_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+                custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector3());
                 custom_effect.Parameters["AmbientIntensity"].SetValue(0.6f);
+                custom_effect.Parameters["ModelTexture"].SetValue(mySolidColorTexture);
+                custom_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
 
                 foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
                 {

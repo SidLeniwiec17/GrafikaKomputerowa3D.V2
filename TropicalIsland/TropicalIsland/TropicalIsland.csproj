@@ -45,6 +45,7 @@
     <Compile Include="Objects\Camera.cs" />
     <Compile Include="Objects\HelperClass.cs" />
     <Compile Include="Objects\Object3D.cs" />
+    <Compile Include="Objects\SolidColorTexture.cs" />
     <Compile Include="Objects\Sphere.cs" />
     <Compile Include="Objects\Vertexes.cs" />
     <Compile Include="Program.cs" />
