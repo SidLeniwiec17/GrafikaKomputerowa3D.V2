@@ -50,14 +50,19 @@ namespace TropicalIsland.Objects
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
                     part.Effect = effect;
-                    effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
+                    //effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
                     effect.Parameters["World"].SetValue(finalMatrix * camera.WorldMatrix * mesh.ParentBone.Transform);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
-                    effect.Parameters["AmbientIntensity"].SetValue(0.25f);
+                    effect.Parameters["AmbientIntensity"].SetValue(0.2f);
                     effect.Parameters["ModelTexture"].SetValue(modelTexture);
                     effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
+                    effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 0.5f, 1.0f));
+                    effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector4());
+                    effect.Parameters["DiffuseIntensity"].SetValue(0.7f);
+                    effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
+                    effect.Parameters["TextureAlpha"].SetValue(1.0f);
 
                 }
                 mesh.Draw();

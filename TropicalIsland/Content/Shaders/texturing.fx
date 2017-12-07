@@ -13,6 +13,7 @@ float4 DiffuseColor = float4(1, 1, 1, 1);
 float DiffuseIntensity = 1.0;
 
 texture ModelTexture;
+
 sampler2D textureSampler = sampler_state {
 	Texture = (ModelTexture);
 	MagFilter = Linear;
