@@ -13,7 +13,7 @@ namespace TropicalIsland
     public class Game1 : Game
     {
         bool useDefaultBasicEffect = false;
-        bool IsFullScreen = false;
+        bool IsFullScreen = true;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Model palmModel;
@@ -203,7 +203,7 @@ namespace TropicalIsland
             RasterizerState rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
-
+            
             GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
             DrawScene();
 
@@ -265,8 +265,10 @@ namespace TropicalIsland
                     }
 
                 }
-                custom_effect.Parameters["ModelTexture"].SetValue(ocean1Texture);
-                custom_effect.Parameters["TextureAlpha"].SetValue(0.2f);
+
+               
+                custom_effect.Parameters["ModelTexture"].SetValue(ocean2Texture);
+                custom_effect.Parameters["TextureAlpha"].SetValue(0.8f);
                 foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
