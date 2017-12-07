@@ -17,8 +17,20 @@ float3 CameraPosition;
 texture ModelTexture;
 float TextureAlpha = 1.0f;
 
+texture ModelTexture2;
+float TextureAlpha2 = 1.0f;
+
+
+
 sampler2D textureSampler = sampler_state {
 	Texture = (ModelTexture);
+	MagFilter = Linear;
+	MinFilter = Linear;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+sampler2D textureSampler2 = sampler_state {
+	Texture = (ModelTexture2);
 	MagFilter = Linear;
 	MinFilter = Linear;
 	AddressU = Clamp;
@@ -65,17 +77,29 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float4 specular = pow(saturate(dot(reflect,input.View)),15);
 	float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
 	textureColor.a = 1;
+
+	float4 textureColor2 = tex2D(textureSampler2, input.TextureCoordinate);
+	textureColor2.a = 1;
+
 	float4 finColor = saturate(textureColor * (AmbientColor*AmbientIntensity + DiffuseIntensity*DiffuseColor*diffuse + SpecularColor*specular));
-	finColor.a = 1;
-	return finColor;
+	finColor.a = TextureAlpha;
+	
+	float4 finColor2 = saturate(textureColor2 * (AmbientColor*AmbientIntensity + DiffuseIntensity*DiffuseColor*diffuse + SpecularColor*specular));
+	finColor2.a = TextureAlpha2;
+	
+	float4 finColor3 = (finColor * TextureAlpha) + (finColor2 * TextureAlpha2);
+
+	return finColor3;
 }
 
 // Our Techinique
-technique Technique1
+technique Technique2
 {
-	pass Pass
-	{
-        AlphaBlendEnable = FALSE;
+	pass Pass2
+	{	
+        AlphaBlendEnable = TRUE;
+		DestBlend = SRCALPHA;
+        SrcBlend = SRCALPHA;
 		VertexShader = compile vs_4_0 VertexShaderFunction();
 		PixelShader = compile ps_4_0 PixelShaderFunction();
 	}

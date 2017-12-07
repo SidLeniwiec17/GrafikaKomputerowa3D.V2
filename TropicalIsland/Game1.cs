@@ -23,6 +23,7 @@ namespace TropicalIsland
 
         Texture2D ocean1Texture;
         Texture2D ocean2Texture;
+        Texture2D ocean3Texture;
         Texture2D dnoTexture;
 
         Random random = new Random();
@@ -36,6 +37,7 @@ namespace TropicalIsland
         BasicEffect basicEffect;
 
         Effect custom_effect;
+        Effect alfa_effect;
 
         Effect skyBox_effect;
         Texture2D skyUp;
@@ -45,11 +47,18 @@ namespace TropicalIsland
         Texture2D skyFront;
         Texture2D skyBack;
 
+        Texture2D texToChange;
+
         //Geometric info
         Vertexes vertexes;
 
+        public bool multi;
+        public bool change;
+
         public Game1()
         {
+            multi = true;
+            change = false;
             graphics = new GraphicsDeviceManager(this);
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             graphics.IsFullScreen = IsFullScreen;
@@ -78,6 +87,8 @@ namespace TropicalIsland
             basicEffect.VertexColorEnabled = true;
             basicEffect.LightingEnabled = false;
             basicEffect.PreferPerPixelLighting = true;
+            GraphicsDevice.PresentationParameters.MultiSampleCount = 2;
+            graphics.ApplyChanges();
 
             vertexes = new Vertexes(GraphicsDevice);
 
@@ -163,9 +174,11 @@ namespace TropicalIsland
             rockTexture = this.Content.Load<Texture2D>("Models/RockTexture");
             //custom_effect = this.Content.Load<Effect>("Shaders/texturing");
             custom_effect = this.Content.Load<Effect>("Shaders/phong");
+            alfa_effect = this.Content.Load<Effect>("Shaders/phongAlpha");
 
             ocean1Texture = this.Content.Load<Texture2D>("Models/ocean1");
             ocean2Texture = this.Content.Load<Texture2D>("Models/ocean2");
+            ocean3Texture = this.Content.Load<Texture2D>("Models/ocean3");
             dnoTexture = this.Content.Load<Texture2D>("Models/dno");
 
             skyBox_effect = this.Content.Load<Effect>("SkyBox/skyShader");
@@ -175,7 +188,7 @@ namespace TropicalIsland
             skyUp = this.Content.Load<Texture2D>("SkyBox/up");
             skyDown = this.Content.Load<Texture2D>("SkyBox/down");
             skyBack = this.Content.Load<Texture2D>("SkyBox/back");
-
+            texToChange = ocean1Texture;
         }
 
         protected override void UnloadContent()
@@ -188,6 +201,50 @@ namespace TropicalIsland
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            if (Keyboard.GetState().IsKeyDown(Keys.M))
+            {
+                if (change)
+                {
+                    if (multi == false)
+                    {
+                        graphics.PreferMultiSampling = true;
+                        GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+                        GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                        multi = true;
+                        change = false;
+                        graphics.ApplyChanges();
+                    }
+                    else
+                    {
+                        graphics.PreferMultiSampling = false;
+                        multi = false;
+                        change = false;
+                        graphics.ApplyChanges();
+                    }
+                }
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.N))
+            {
+                change = true;
+            }
+
+
+            if (Keyboard.GetState().IsKeyDown(Keys.T))
+            {
+                if (change)
+                {
+                    if (texToChange == ocean1Texture)
+                    {
+                        texToChange = ocean3Texture;
+                        change = false;
+                    }
+                    else
+                    {
+                        texToChange = ocean1Texture;
+                        change = false;
+                    }
+                }
+            }
             // TODO: Add your update logic here
             camera.Update(gameTime);
 
@@ -203,7 +260,7 @@ namespace TropicalIsland
             RasterizerState rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
-            
+
             GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
             DrawScene();
 
@@ -256,6 +313,19 @@ namespace TropicalIsland
                 custom_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
                 custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
 
+                alfa_effect.Parameters["World"].SetValue(camera.WorldMatrix);
+                alfa_effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                alfa_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                alfa_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+                alfa_effect.Parameters["AmbientIntensity"].SetValue(0.9f);
+                alfa_effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 0.5f, 1.0f));
+                alfa_effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector4());
+                alfa_effect.Parameters["DiffuseIntensity"].SetValue(0.1f);
+                alfa_effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
+                alfa_effect.Parameters["ModelTexture"].SetValue(mySolidColorTexture);
+                alfa_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
+                alfa_effect.Parameters["TextureAlpha"].SetValue(0.1f);
+
                 foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
@@ -266,10 +336,11 @@ namespace TropicalIsland
 
                 }
 
-               
-                custom_effect.Parameters["ModelTexture"].SetValue(ocean2Texture);
-                custom_effect.Parameters["TextureAlpha"].SetValue(0.8f);
-                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                alfa_effect.Parameters["ModelTexture"].SetValue(ocean2Texture);
+                alfa_effect.Parameters["TextureAlpha"].SetValue(0.3f);
+                alfa_effect.Parameters["ModelTexture2"].SetValue(texToChange);
+                alfa_effect.Parameters["TextureAlpha2"].SetValue(0.3f);
+                foreach (EffectPass pass in alfa_effect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
                     if (vertexes.vertexBuffer != null)
@@ -278,6 +349,7 @@ namespace TropicalIsland
                     }
 
                 }
+
                 custom_effect.Parameters["ModelTexture"].SetValue(dnoTexture);
                 custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
                 foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
@@ -288,7 +360,6 @@ namespace TropicalIsland
                         GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - 6 - cubeOffset, vertexes.vertexBuffer.VertexCount - cubeOffset);
                     }
                 }
-
 
                 custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
                 custom_effect.Parameters["AmbientIntensity"].SetValue(1.0f);
@@ -378,7 +449,7 @@ namespace TropicalIsland
                 foreach (var r in rocks)
                 {
                     r.Draw(rockModel, basicEffect, rockTexture);
-                }                
+                }
             }
         }
     }
