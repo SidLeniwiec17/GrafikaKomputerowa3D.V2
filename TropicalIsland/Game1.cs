@@ -13,7 +13,7 @@ namespace TropicalIsland
     public class Game1 : Game
     {
         bool useDefaultBasicEffect = false;
-        bool IsFullScreen = false;
+        bool IsFullScreen = true;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Model palmModel;
