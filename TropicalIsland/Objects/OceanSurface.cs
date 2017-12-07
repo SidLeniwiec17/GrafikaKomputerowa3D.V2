@@ -23,16 +23,27 @@ namespace TropicalIsland.Objects
             TranslationMatrix = Matrix.CreateTranslation(move);
             ScaleMatrix = Matrix.CreateScale(scale);
         }
-        public VertexPositionNormalTexture[] Init()
-        {           
+        public VertexPositionNormalTexture[] Init(bool alfa = false)
+        {
             List<VertexPositionNormalTexture> triangleVertices = new List<VertexPositionNormalTexture>();
-            triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-100, 0, -100), Vector3.Up, new Vector2(0.0f, 0.0f)));
-            triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-100, 0, 100), Vector3.Up, new Vector2(1.0f, 0.0f)));
-            triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(100, 0, -100), Vector3.Up, new Vector2(0.0f, 1.0f)));
-            triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-100, 0, 100), Vector3.Up, new Vector2(1.0f, 0.0f)));
-            triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(100, 0, 100), Vector3.Up, new Vector2(1.0f, 1.0f)));
-            triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(100, 0, -100), Vector3.Up, new Vector2(0.0f, 1.0f)));
-
+            if (alfa)
+            {
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, -1400), Vector3.Up, new Vector2(0.0f, 0.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, 1400), Vector3.Up, new Vector2(1.0f, 0.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1400, 0, -1400), Vector3.Up, new Vector2(0.0f, 1.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, 1400), Vector3.Up, new Vector2(1.0f, 0.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1400, 0, 1400), Vector3.Up, new Vector2(1.0f, 1.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1400, 0, -1400), Vector3.Up, new Vector2(0.0f, 1.0f)));
+            }
+            else
+            {
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1000, 0, -1000), Vector3.Up, new Vector2(0.0f, 0.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 0.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, -1000), Vector3.Up, new Vector2(0.0f, 1.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 0.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 1.0f)));
+                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, -1000), Vector3.Up, new Vector2(0.0f, 1.0f)));
+            }
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
             VertexPositionNormalTexture[] movedVertices = triangleVertices.ToArray();
             for (int i = 0; i < movedVertices.Length; i++)

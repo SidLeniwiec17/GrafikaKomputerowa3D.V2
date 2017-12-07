@@ -100,7 +100,7 @@ technique Technique2
         AlphaBlendEnable = TRUE;
 		DestBlend = SRCALPHA;
         SrcBlend = SRCALPHA;
-		VertexShader = compile vs_4_0 VertexShaderFunction();
-		PixelShader = compile ps_4_0 PixelShaderFunction();
+		VertexShader = compile vs_5_0 VertexShaderFunction();
+		PixelShader = compile ps_5_0 PixelShaderFunction();
 	}
 }
