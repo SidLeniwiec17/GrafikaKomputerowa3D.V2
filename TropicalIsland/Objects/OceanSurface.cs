@@ -26,7 +26,7 @@ namespace TropicalIsland.Objects
         public VertexPositionNormalTexture[] Init(bool alfa = false)
         {
             List<VertexPositionNormalTexture> triangleVertices = new List<VertexPositionNormalTexture>();
-            if (alfa)
+            /*if (alfa)
             {
                 triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, -1400), Vector3.Up, new Vector2(0.0f, 0.0f)));
                 triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, 1400), Vector3.Up, new Vector2(1.0f, 0.0f)));
@@ -43,7 +43,31 @@ namespace TropicalIsland.Objects
                 triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 0.0f)));
                 triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 1.0f)));
                 triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, -1000), Vector3.Up, new Vector2(0.0f, 1.0f)));
+            }*/
+            
+            int size = 2000;
+            if (alfa)
+            {
+                size = 2800;
             }
+            int split = 100;
+            int xpos = size / 2;
+
+            for (int iX = 0; iX < split; iX++)
+            {
+                int zpos = size / 2;
+                for (int iZ = 0; iZ < split; iZ++)
+                {
+                    triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-xpos + ((size / split) * (iX + 1)) - (size / split), 0, -zpos + ((size / split) * (iZ + 1)) - (size / split)), Vector3.Up, new Vector2(0.0f, 0.0f)));
+                    triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-xpos + ((size / split) * (iX + 1)) - (size / split), 0, -zpos + ((size / split) * (iZ + 1))), Vector3.Up, new Vector2(1.0f, 0.0f)));
+                    triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-xpos + ((size/split) * (iX + 1)), 0, -zpos + ((size / split) * (iZ + 1)) - (size / split)), Vector3.Up, new Vector2(0.0f, 1.0f)));
+                    triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-xpos + ((size / split) * (iX + 1)) - (size / split), 0, -zpos + ((size / split) * (iZ + 1))), Vector3.Up, new Vector2(1.0f, 0.0f)));
+                    triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-xpos + ((size / split) * (iX + 1)), 0, -zpos + ((size / split) * (iZ + 1))), Vector3.Up, new Vector2(1.0f, 1.0f)));
+                    triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-xpos + ((size / split) * (iX + 1)), 0, -zpos + ((size / split) * (iZ + 1)) - (size / split)), Vector3.Up, new Vector2(0.0f, 1.0f)));
+                }
+            }
+
+
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
             VertexPositionNormalTexture[] movedVertices = triangleVertices.ToArray();
             for (int i = 0; i < movedVertices.Length; i++)

@@ -55,6 +55,7 @@ namespace TropicalIsland
         //Geometric info
         Vertexes vertexes;
         Vertexes vertexesAlfa;
+        int dnoVerticeCount = 0;
 
         public bool multi;
         public bool change;
@@ -82,7 +83,6 @@ namespace TropicalIsland
             Content.RootDirectory = "Content";
         }
 
-
         protected override void Initialize()
         {
             camera = new Camera();
@@ -109,7 +109,7 @@ namespace TropicalIsland
             //Ocean
             OceanSurface dno = new OceanSurface(new Vector3(0, -5.2f, 0), 0, 0, 0, 10f);
             VertexPositionNormalTexture[] testdno = dno.Init(true);
-
+            dnoVerticeCount = testdno.Length;
             VertexPositionNormalTexture[] skyCube = skyboxObject.initTestCubeSkybox(new Vector3(0,0,0));
 
             //Palms
@@ -171,6 +171,7 @@ namespace TropicalIsland
             float result = ((float)(sample) * (maximum - minimum)) + minimum;
             return result;
         }
+
         public void MoveSkyBox(Vertexes vertexes, int indexStart, Vector3 camPos)
         {
             VertexPositionNormalTexture[] skypos = skyboxObject.initTestCubeSkybox(camPos);
@@ -288,6 +289,76 @@ namespace TropicalIsland
             base.Draw(gameTime);
         }
 
+        public void DrawWithDefaultShader(int cubeOffset)
+        {
+            basicEffect.VertexColorEnabled = true;
+            basicEffect.LightingEnabled = true;
+            basicEffect.Projection = camera.ProjectionMatrix;
+            basicEffect.View = camera.ViewMatrix;
+            basicEffect.World = camera.WorldMatrix;
+
+            foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                if (vertexes.vertexBuffer != null)
+                {
+                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexes.vertexBuffer.VertexCount - 6 - cubeOffset);
+                }
+            }
+
+            foreach (var p in palms)
+            {
+                p.Draw(palmModel, basicEffect, palmTexture);
+            }
+            foreach (var r in rocks)
+            {
+                r.Draw(rockModel, basicEffect, rockTexture);
+            }
+        }
+
+        public void DrawRocks()
+        {
+            basicEffect.Projection = camera.ProjectionMatrix;
+            basicEffect.View = camera.ViewMatrix;
+            basicEffect.World = camera.WorldMatrix;
+            basicEffect.AmbientLightColor = Color.White.ToVector3();
+            basicEffect.DiffuseColor = Color.White.ToVector3();
+            basicEffect.SpecularColor = Color.White.ToVector3();
+            basicEffect.SpecularPower = 0.2f;
+
+            foreach (var r in rocks)
+            {
+                r.Draw(rockModel, basicEffect, rockTexture);
+            }
+        }
+
+        public void DrawOcean(Effect alfa_effect, Camera camera, Texture2D ocean2texture, Texture2D textochange)
+        {
+            alfa_effect.Parameters["World"].SetValue(camera.WorldMatrix);
+            alfa_effect.Parameters["View"].SetValue(camera.ViewMatrix);
+            alfa_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            alfa_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+            alfa_effect.Parameters["AmbientIntensity"].SetValue(0.9f);
+            alfa_effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 0.5f, 1.0f));
+            alfa_effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector4());
+            alfa_effect.Parameters["DiffuseIntensity"].SetValue(0.1f);
+            alfa_effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
+            alfa_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
+            alfa_effect.Parameters["ModelTexture"].SetValue(ocean2texture);
+            alfa_effect.Parameters["TextureAlpha"].SetValue(0.7f);
+            alfa_effect.Parameters["ModelTexture2"].SetValue(textochange);
+            alfa_effect.Parameters["TextureAlpha2"].SetValue(0.4f);
+            GraphicsDevice.SetVertexBuffer(vertexesAlfa.vertexBuffer);
+            foreach (EffectPass pass in alfa_effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                if (vertexesAlfa.vertexBuffer != null)
+                {
+                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexesAlfa.vertexBuffer.VertexCount);
+                }
+            }
+        }
+
         public void DrawScene()
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -297,29 +368,7 @@ namespace TropicalIsland
 
             if (useDefaultBasicEffect)
             {
-                basicEffect.VertexColorEnabled = true;
-                basicEffect.LightingEnabled = true;
-                basicEffect.Projection = camera.ProjectionMatrix;
-                basicEffect.View = camera.ViewMatrix;
-                basicEffect.World = camera.WorldMatrix;
-
-                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                    if (vertexes.vertexBuffer != null)
-                    {
-                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexes.vertexBuffer.VertexCount - 6 - cubeOffset);
-                    }
-                }
-
-                foreach (var p in palms)
-                {
-                    p.Draw(palmModel, basicEffect, palmTexture);
-                }
-                foreach (var r in rocks)
-                {
-                    r.Draw(rockModel, basicEffect, rockTexture);
-                }
+                DrawWithDefaultShader(cubeOffset);
             }
             else
             {
@@ -342,7 +391,7 @@ namespace TropicalIsland
                     pass.Apply();
                     if (vertexes.vertexBuffer != null)
                     {
-                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexes.vertexBuffer.VertexCount - 6 - cubeOffset);
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexes.vertexBuffer.VertexCount - dnoVerticeCount - cubeOffset);
                     }
 
                 }
@@ -354,9 +403,9 @@ namespace TropicalIsland
                     pass.Apply();
                     if (vertexes.vertexBuffer != null)
                     {
-                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - 6 - cubeOffset, vertexes.vertexBuffer.VertexCount - cubeOffset);
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - dnoVerticeCount - cubeOffset, vertexes.vertexBuffer.VertexCount - cubeOffset);
                     }
-                }
+                }              
 
                 custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
                 custom_effect.Parameters["AmbientIntensity"].SetValue(1.0f);
@@ -435,44 +484,8 @@ namespace TropicalIsland
                     p.DrawModelWithEffect(palmModel, camera, custom_effect, palmTexture);
                 }
 
-                basicEffect.Projection = camera.ProjectionMatrix;
-                basicEffect.View = camera.ViewMatrix;
-                basicEffect.World = camera.WorldMatrix;
-                basicEffect.AmbientLightColor = Color.White.ToVector3();
-                basicEffect.DiffuseColor = Color.White.ToVector3();
-                basicEffect.SpecularColor = Color.White.ToVector3();
-                basicEffect.SpecularPower = 0.2f;
-
-                foreach (var r in rocks)
-                {
-                    r.Draw(rockModel, basicEffect, rockTexture);
-                }
-
-                alfa_effect.Parameters["World"].SetValue(camera.WorldMatrix);
-                alfa_effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                alfa_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                alfa_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
-                alfa_effect.Parameters["AmbientIntensity"].SetValue(0.9f);
-                alfa_effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 0.5f, 1.0f));
-                alfa_effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector4());
-                alfa_effect.Parameters["DiffuseIntensity"].SetValue(0.1f);
-                alfa_effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
-                alfa_effect.Parameters["ModelTexture"].SetValue(mySolidColorTexture);
-                alfa_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
-                alfa_effect.Parameters["TextureAlpha"].SetValue(0.1f);
-                alfa_effect.Parameters["ModelTexture"].SetValue(ocean2Texture);
-                alfa_effect.Parameters["TextureAlpha"].SetValue(0.7f);
-                alfa_effect.Parameters["ModelTexture2"].SetValue(texToChange);
-                alfa_effect.Parameters["TextureAlpha2"].SetValue(0.4f);
-                GraphicsDevice.SetVertexBuffer(vertexesAlfa.vertexBuffer);
-                foreach (EffectPass pass in alfa_effect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                    if (vertexesAlfa.vertexBuffer != null)
-                    {
-                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexesAlfa.vertexBuffer.VertexCount);
-                    }
-                }
+                DrawRocks();
+                DrawOcean(alfa_effect, camera, ocean2Texture, texToChange);
             }
         }
     }
