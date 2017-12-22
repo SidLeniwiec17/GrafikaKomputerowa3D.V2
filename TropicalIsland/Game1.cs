@@ -94,6 +94,7 @@ namespace TropicalIsland
             basicEffect.LightingEnabled = false;
             basicEffect.PreferPerPixelLighting = true;
             GraphicsDevice.PresentationParameters.MultiSampleCount = 2;
+            graphics.GraphicsProfile = GraphicsProfile.HiDef;
             graphics.ApplyChanges();
 
             vertexes = new Vertexes(GraphicsDevice);
@@ -345,9 +346,9 @@ namespace TropicalIsland
             alfa_effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
             alfa_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
             alfa_effect.Parameters["ModelTexture"].SetValue(ocean2texture);
-            alfa_effect.Parameters["TextureAlpha"].SetValue(0.7f);
+            alfa_effect.Parameters["TextureAlpha"].SetValue(0.65f);
             alfa_effect.Parameters["ModelTexture2"].SetValue(textochange);
-            alfa_effect.Parameters["TextureAlpha2"].SetValue(0.4f);
+            alfa_effect.Parameters["TextureAlpha2"].SetValue(0.45f);
             GraphicsDevice.SetVertexBuffer(vertexesAlfa.vertexBuffer);
             foreach (EffectPass pass in alfa_effect.CurrentTechnique.Passes)
             {
@@ -397,7 +398,7 @@ namespace TropicalIsland
                 }
 
                 custom_effect.Parameters["ModelTexture"].SetValue(dnoTexture);
-                custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+                custom_effect.Parameters["TextureAlpha"].SetValue(0.6f);
                 foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
