@@ -26,31 +26,12 @@ namespace TropicalIsland.Objects
         public VertexPositionNormalTexture[] Init(bool alfa = false)
         {
             List<VertexPositionNormalTexture> triangleVertices = new List<VertexPositionNormalTexture>();
-            /*if (alfa)
-            {
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, -1400), Vector3.Up, new Vector2(0.0f, 0.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, 1400), Vector3.Up, new Vector2(1.0f, 0.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1400, 0, -1400), Vector3.Up, new Vector2(0.0f, 1.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1400, 0, 1400), Vector3.Up, new Vector2(1.0f, 0.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1400, 0, 1400), Vector3.Up, new Vector2(1.0f, 1.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1400, 0, -1400), Vector3.Up, new Vector2(0.0f, 1.0f)));
-            }
-            else
-            {
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1000, 0, -1000), Vector3.Up, new Vector2(0.0f, 0.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 0.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, -1000), Vector3.Up, new Vector2(0.0f, 1.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(-1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 0.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, 1000), Vector3.Up, new Vector2(1.0f, 1.0f)));
-                triangleVertices.Add(new VertexPositionNormalTexture(new Vector3(1000, 0, -1000), Vector3.Up, new Vector2(0.0f, 1.0f)));
-            }*/
-
-
+           
             if (alfa)
             {
                 int size = 2800;
 
-                int split = 50;
+                int split = 70;
                 int xpos = size / 2;
 
                 for (int iX = 0; iX < split; iX++)

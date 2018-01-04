@@ -68,5 +68,22 @@ namespace TropicalIsland.Objects
                 mesh.Draw();
             }
         }
+        public void DrawModelWithGlassEffect(Model model, Camera camera, Effect effect)
+        {
+            Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(mesh.ParentBone.Transform * finalMatrix * camera.WorldMatrix));
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    part.Effect = effect;
+                    //effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
+                    effect.Parameters["World"].SetValue(finalMatrix * camera.WorldMatrix * mesh.ParentBone.Transform);
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                }
+                mesh.Draw();
+            }
+        }
     }
 }
