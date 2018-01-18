@@ -31,7 +31,7 @@ namespace TropicalIsland.Objects
             {
                 int size = 2800;
 
-                int split = 80;
+                int split = 50;
                 int xpos = size / 2;
 
                 for (int iX = 0; iX < split; iX++)

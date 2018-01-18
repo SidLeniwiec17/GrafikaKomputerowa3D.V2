@@ -55,7 +55,8 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	float Diff = saturate(dot(input.UV, LightDirection));
+	//float Diff = saturate(dot(input.UV, LightDirection));	
+	float4 Diff = saturate(dot(-LightDirection, input.Normal));
 	float3 Reflect = normalize(2 * Diff * (input.Normal - LightDirection));
 	float3 ReflectColor = tex2D(ReflectionCubeMapSampler, Reflect);
 	return float4(ReflectColor,1);

@@ -13,7 +13,7 @@ namespace TropicalIsland
     public class Game1 : Game
     {
         bool useDefaultBasicEffect = false;
-        bool IsFullScreen = true;
+        bool IsFullScreen = false;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Model palmModel;
@@ -71,6 +71,7 @@ namespace TropicalIsland
 
         public bool multi;
         public bool change;
+        public bool first;
         float time;
 
         public Game1()
@@ -98,6 +99,7 @@ namespace TropicalIsland
 
         protected override void Initialize()
         {
+            first = true;
             camera = new Camera();
             camera.Init(GraphicsDevice);
             skyboxObject = new SkyBox();
@@ -184,7 +186,7 @@ namespace TropicalIsland
                 float z = 35.0f + GetRandomNumber(-5.0f,5.0f);
                 palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.04f));
             }
-            //glassPalm = new Object3D(new Vector3(450.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.5f);
+            //glassPalm = new Object3D(new Vector3(85.0f, -15.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.65f);
             glassPalm = new Object3D(new Vector3(60.0f, -10.0f, 0.0f), 0.0f, 0.0f, 0.0f, 10.0f);
         }
 
@@ -247,6 +249,7 @@ namespace TropicalIsland
             texToChange = ocean3Texture;
 
             robotModel = Content.Load<Model>("Models/free_car_1");
+            //robotModel = Content.Load<Model>("Models/rifle");
         }
 
         protected override void UnloadContent()
@@ -386,25 +389,28 @@ namespace TropicalIsland
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
-            GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
-            //Turn off culling so we see both sides of our rendered triangle
-            RasterizerState rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
+            if (first)
+            {
+                first = false;
+                GraphicsDevice.Clear(Color.Black);
+                GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
+                //Turn off culling so we see both sides of our rendered triangle
+                RasterizerState rasterizerState = new RasterizerState();
+                rasterizerState.CullMode = CullMode.None;
+                GraphicsDevice.RasterizerState = rasterizerState;
 
-
-            GraphicsDevice.SetRenderTarget(renderTarget);
-            DrawScene(gameTime);
-            GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
-            DoTheCubeMap();
-            this.EnvironmentMap = renderTarget;
-            glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
+                GraphicsDevice.SetRenderTarget(renderTarget);
+                DrawScene(gameTime);
+                DoTheCubeMap();
+                this.EnvironmentMap = renderTarget;
+                glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
+            }
             GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Reset();
+            GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
             DrawScene(gameTime);
             DrawTestCube(camera);
             DrawGlassPalm(camera);
-
             base.Draw(gameTime);
         }
 
