@@ -163,29 +163,29 @@ namespace TropicalIsland
         {
             for (int i = 0; i < 4; i++)
             {
-                float x = (i * 400.0f) - 900.0f + GetRandomNumber(-200.0f, 200.0f);
-                float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
-                float z = 0.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.045f));
+                float x = (i * 15.0f) - 30.0f + GetRandomNumber(-5.0f, 5.0f);
+                float y = -40.0f + GetRandomNumber(-5.0f, 5.0f);
+                float z = 0.0f + GetRandomNumber(-10.0f, 10.0f);
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.04f));
             }
 
             for (int i = 0; i < 3; i++)
             {
-                float x = (i * 400.0f) - 500.0f + GetRandomNumber(-200.0f, 200.0f);
-                float y = -1200.0f + GetRandomNumber(-100.0f, 0.0f);
-                float z = -600.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.2f, 0.0f, 0.045f));
+                float x = (i * 15.0f) - 20.0f + GetRandomNumber(-5.0f, 5.0f);
+                float y = -50.0f + GetRandomNumber(-5.0f, 5.0f);
+                float z = -35.0f + GetRandomNumber(-5.0f, 5.0f);
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.2f, 0.0f, 0.04f));
             }
 
             for (int i = 0; i < 4; i++)
             {
-                float x = (i * 400.0f) - 700.0f + GetRandomNumber(-200.0f, 200.0f);
-                float y = -1000.0f + GetRandomNumber(-100.0f, 0.0f);
-                float z = 600.0f + GetRandomNumber(-200.0f, 200.0f);
-                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.045f));
+                float x = (i * 15.0f) - 30.0f + GetRandomNumber(-5.0f, 5.0f);
+                float y = -50.0f + GetRandomNumber(-5.0f, 5.0f);
+                float z = 35.0f + GetRandomNumber(-5.0f,5.0f);
+                palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.04f));
             }
             //glassPalm = new Object3D(new Vector3(450.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.5f);
-            glassPalm = new Object3D(new Vector3(0.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 2.5f);
+            glassPalm = new Object3D(new Vector3(60.0f, -10.0f, 0.0f), 0.0f, 0.0f, 0.0f, 10.0f);
         }
 
         private void InitRocks()
@@ -246,7 +246,7 @@ namespace TropicalIsland
             skyBack = this.Content.Load<Texture2D>("SkyBox/back");
             texToChange = ocean3Texture;
 
-            robotModel = Content.Load<Model>("Models/rifle");
+            robotModel = Content.Load<Model>("Models/free_car_1");
         }
 
         protected override void UnloadContent()
