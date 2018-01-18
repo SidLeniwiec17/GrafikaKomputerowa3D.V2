@@ -185,7 +185,7 @@ namespace TropicalIsland
                 palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.045f));
             }
             //glassPalm = new Object3D(new Vector3(450.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.5f);
-            glassPalm = new Object3D(new Vector3(0.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 2.5f);
+            glassPalm = new Object3D(new Vector3(0.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.8f);
         }
 
         private void InitRocks()
