@@ -20,6 +20,10 @@ namespace TropicalIsland
         Texture2D palmTexture;
         Model rockModel;
         Texture2D rockTexture;
+        Vector4[] fale;
+
+        Model robotModel;
+
         int skyboxFirstVertIndex;
 
         Texture2D ocean1Texture;
@@ -44,6 +48,7 @@ namespace TropicalIsland
         Effect custom_effect;
         Effect alfa_effect;
         Effect glass_effect;
+        Effect ocean_effect;
 
         Effect skyBox_effect;
         Texture2D skyUp;
@@ -58,6 +63,7 @@ namespace TropicalIsland
         //Geometric info
         Vertexes vertexes;
         Vertexes vertexesAlfa;
+        Vertexes vertexesTest;
         int dnoVerticeCount = 0;
 
         RenderTarget2D renderTarget;
@@ -65,6 +71,7 @@ namespace TropicalIsland
 
         public bool multi;
         public bool change;
+        float time;
 
         public Game1()
         {
@@ -105,6 +112,7 @@ namespace TropicalIsland
 
             vertexes = new Vertexes(GraphicsDevice);
             vertexesAlfa = new Vertexes(GraphicsDevice);
+            vertexesTest = new Vertexes(GraphicsDevice);
             //Sphere
             Sphere sphere = new Sphere(100.0f, new Vector3(0.0f, 120.0f, 0.0f), 16, 0.0f, 0.0f, (float)Math.PI, 1.5f);
             VertexPositionNormalTexture[] testSphere = sphere.Init(true);
@@ -133,6 +141,7 @@ namespace TropicalIsland
             vertexes.addObject(testdno, false);
             skyboxFirstVertIndex = vertexes.triangleVertices.Length;
             vertexes.addObject(skyCube, false);
+            vertexesTest.addObject(testCube, true);
 
             renderTarget = new RenderTarget2D(
                 GraphicsDevice,
@@ -144,6 +153,9 @@ namespace TropicalIsland
 
             RefCubeMap = new RenderTargetCube(this.GraphicsDevice, 256, true, SurfaceFormat.Color, DepthFormat.Depth16, 1, RenderTargetUsage.PreserveContents);
 
+            fale = new Vector4[] { new Vector4(1.0f, 0.0f, 0.1f, 0.4f), new Vector4(1.0f, 1.0f, 0.2f, 0.3f), new Vector4(1.0f, 1.0f, 0.4f, 0.16f),
+            new Vector4(0.0f, 0.0f, 0.6f, 0.08f), new Vector4(-1.0f, 0.0f, 1.0f, 0.1f)};
+            time = 0.0f;
             base.Initialize();
         }
 
@@ -172,7 +184,8 @@ namespace TropicalIsland
                 float z = 600.0f + GetRandomNumber(-200.0f, 200.0f);
                 palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.045f));
             }
-            glassPalm = new Object3D(new Vector3(-1450.0f, -1000.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.045f);
+            //glassPalm = new Object3D(new Vector3(450.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.5f);
+            glassPalm = new Object3D(new Vector3(0.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 2.5f);
         }
 
         private void InitRocks()
@@ -217,6 +230,7 @@ namespace TropicalIsland
             custom_effect = this.Content.Load<Effect>("Shaders/phong");
             alfa_effect = this.Content.Load<Effect>("Shaders/phongAlpha");
             glass_effect = this.Content.Load<Effect>("Shaders/glass");
+            ocean_effect = this.Content.Load<Effect>("Shaders/ocean");
 
             ocean1Texture = this.Content.Load<Texture2D>("Models/ocean1");
             ocean2Texture = this.Content.Load<Texture2D>("Models/ocean2");
@@ -231,6 +245,8 @@ namespace TropicalIsland
             skyDown = this.Content.Load<Texture2D>("SkyBox/down");
             skyBack = this.Content.Load<Texture2D>("SkyBox/back");
             texToChange = ocean3Texture;
+
+            robotModel = Content.Load<Model>("Models/rifle");
         }
 
         protected override void UnloadContent()
@@ -298,9 +314,10 @@ namespace TropicalIsland
         private void DoTheCubeMap()
         {
             Matrix viewMatrix;
-            Matrix world = Matrix.CreateTranslation(new Vector3(-1500.0f, -1000.0f, 0.0f));
-            CubeMapFace cubeMapFace = CubeMapFace.NegativeX;           
-            glass_effect.Parameters["World"].SetValue(world);
+            var pos = new Vector3(-450.0f, -20.0f, 0.0f);
+            Matrix world = Matrix.CreateTranslation(new Vector3(0.0f, 0.0f, 0.0f));
+            CubeMapFace cubeMapFace = CubeMapFace.NegativeX;
+            glass_effect.Parameters["World"].SetValue(camera.WorldMatrix);
             glass_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
 
             for (int i = 0; i < 6; i++)
@@ -311,7 +328,7 @@ namespace TropicalIsland
                 {
                     case CubeMapFace.NegativeX:
                         {
-                            viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Left, Vector3.Up);
+                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Right, Vector3.Up);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
                             this.GraphicsDevice.Clear(Color.White);
                             glass_effect.Parameters["View"].SetValue(viewMatrix);
@@ -320,7 +337,7 @@ namespace TropicalIsland
                         }
                     case CubeMapFace.NegativeY:
                         {
-                            viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Down, Vector3.Forward);
+                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Up, Vector3.Forward);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
                             this.GraphicsDevice.Clear(Color.White);
                             glass_effect.Parameters["View"].SetValue(viewMatrix);
@@ -329,7 +346,7 @@ namespace TropicalIsland
                         }
                     case CubeMapFace.NegativeZ:
                         {
-                            viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Backward, Vector3.Up);
+                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Forward, Vector3.Up);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
                             this.GraphicsDevice.Clear(Color.White);
                             glass_effect.Parameters["View"].SetValue(viewMatrix);
@@ -338,7 +355,7 @@ namespace TropicalIsland
                         }
                     case CubeMapFace.PositiveX:
                         {
-                            viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Right, Vector3.Up);
+                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Left, Vector3.Up);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
                             this.GraphicsDevice.Clear(Color.White);
                             glass_effect.Parameters["View"].SetValue(viewMatrix);
@@ -347,7 +364,7 @@ namespace TropicalIsland
                         }
                     case CubeMapFace.PositiveY:
                         {
-                            viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Up, Vector3.Backward);
+                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Down, Vector3.Backward);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
                             this.GraphicsDevice.Clear(Color.White);
                             glass_effect.Parameters["View"].SetValue(viewMatrix);
@@ -356,7 +373,7 @@ namespace TropicalIsland
                         }
                     case CubeMapFace.PositiveZ:
                         {
-                            viewMatrix = Matrix.CreateLookAt(Vector3.Zero, Vector3.Forward, Vector3.Up);
+                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Backward, Vector3.Up);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
                             this.GraphicsDevice.Clear(Color.White);
                             glass_effect.Parameters["View"].SetValue(viewMatrix);
@@ -378,13 +395,14 @@ namespace TropicalIsland
 
 
             GraphicsDevice.SetRenderTarget(renderTarget);
-            DrawScene();
+            DrawScene(gameTime);
             GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
             DoTheCubeMap();
             this.EnvironmentMap = renderTarget;
             glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
             GraphicsDevice.SetRenderTarget(null);
-            DrawScene();
+            DrawScene(gameTime);
+            DrawTestCube(camera);
             DrawGlassPalm(camera);
 
             base.Draw(gameTime);
@@ -392,7 +410,34 @@ namespace TropicalIsland
 
         public void DrawGlassPalm(Camera camera)
         {
-            glassPalm.DrawModelWithGlassEffect(palmModel, camera, glass_effect);
+            glassPalm.DrawModelWithGlassEffect(robotModel, camera, glass_effect);
+        }
+
+        public void DrawTestCube(Camera camera)
+        {
+            custom_effect.Parameters["World"].SetValue(camera.WorldMatrix);
+            custom_effect.Parameters["View"].SetValue(camera.ViewMatrix);
+            custom_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+            custom_effect.Parameters["AmbientIntensity"].SetValue(0.2f);
+            custom_effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 0.5f, 1.0f));
+            custom_effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector4());
+            custom_effect.Parameters["DiffuseIntensity"].SetValue(0.7f);
+            custom_effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
+            custom_effect.Parameters["ModelTexture"].SetValue(EnvironmentMap);
+            custom_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
+            custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+
+            GraphicsDevice.SetVertexBuffer(vertexesTest.vertexBuffer);
+            foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                if (vertexesTest.vertexBuffer != null)
+                {
+                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexesTest.vertexBuffer.VertexCount);
+                }
+
+            }
         }
 
         public void DrawWithDefaultShader(int cubeOffset)
@@ -438,8 +483,10 @@ namespace TropicalIsland
             }
         }
 
-        public void DrawOcean(Effect alfa_effect, Camera camera, Texture2D ocean2texture, Texture2D textochange)
+        public void DrawOcean(Effect alfa_effect, Camera camera, Texture2D ocean2texture, Texture2D textochange, GameTime gametime)
         {
+            time = time + 1.5f * (float)gametime.ElapsedGameTime.TotalSeconds;           
+
             alfa_effect.Parameters["World"].SetValue(camera.WorldMatrix);
             alfa_effect.Parameters["View"].SetValue(camera.ViewMatrix);
             alfa_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
@@ -454,6 +501,8 @@ namespace TropicalIsland
             alfa_effect.Parameters["TextureAlpha"].SetValue(0.65f);
             alfa_effect.Parameters["ModelTexture2"].SetValue(textochange);
             alfa_effect.Parameters["TextureAlpha2"].SetValue(0.45f);
+            alfa_effect.Parameters["Wave"].SetValue(fale);
+            alfa_effect.Parameters["time"].SetValue(time);
             GraphicsDevice.SetVertexBuffer(vertexesAlfa.vertexBuffer);
             foreach (EffectPass pass in alfa_effect.CurrentTechnique.Passes)
             {
@@ -465,7 +514,7 @@ namespace TropicalIsland
             }
         }
 
-        public void DrawScene()
+        public void DrawScene(GameTime gametime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
@@ -591,7 +640,7 @@ namespace TropicalIsland
                 }
 
                 DrawRocks();
-                DrawOcean(alfa_effect, camera, ocean2Texture, texToChange);
+                DrawOcean(ocean_effect, camera, ocean2Texture, texToChange, gametime);
             }
         }
     }

@@ -44,6 +44,7 @@ namespace TropicalIsland.Objects
         public void DrawModelWithEffect(Model model, Camera camera, Effect effect, Texture2D modelTexture)
         {
             Matrix finalMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
+            //Matrix finalMatrix = ScaleMatrix * RotationMatrix * TranslationMatrix;
             foreach (ModelMesh mesh in model.Meshes)
             {
                 Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(mesh.ParentBone.Transform * finalMatrix * camera.WorldMatrix));
