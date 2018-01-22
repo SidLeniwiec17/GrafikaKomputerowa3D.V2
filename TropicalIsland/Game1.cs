@@ -89,8 +89,8 @@ namespace TropicalIsland
             }
             else
             {
-                graphics.PreferredBackBufferWidth = 1920 / 2;  // set this value to the desired width of your window
-                graphics.PreferredBackBufferHeight = 1080 / 2;   // set this value to the desired height of your window
+                graphics.PreferredBackBufferWidth = (1920 / 3) * 2;  // set this value to the desired width of your window
+                graphics.PreferredBackBufferHeight = (1080 / 3) * 2;   // set this value to the desired height of your window
             }
             graphics.ApplyChanges();
 
@@ -183,7 +183,7 @@ namespace TropicalIsland
             {
                 float x = (i * 15.0f) - 30.0f + GetRandomNumber(-5.0f, 5.0f);
                 float y = -50.0f + GetRandomNumber(-5.0f, 5.0f);
-                float z = 35.0f + GetRandomNumber(-5.0f,5.0f);
+                float z = 35.0f + GetRandomNumber(-5.0f, 5.0f);
                 palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.04f));
             }
             //glassPalm = new Object3D(new Vector3(85.0f, -15.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.65f);
@@ -491,7 +491,7 @@ namespace TropicalIsland
 
         public void DrawOcean(Effect alfa_effect, Camera camera, Texture2D ocean2texture, Texture2D textochange, GameTime gametime)
         {
-            time = time + 1.5f * (float)gametime.ElapsedGameTime.TotalSeconds;           
+            time = time + 1.5f * (float)gametime.ElapsedGameTime.TotalSeconds;
 
             alfa_effect.Parameters["World"].SetValue(camera.WorldMatrix);
             alfa_effect.Parameters["View"].SetValue(camera.ViewMatrix);
