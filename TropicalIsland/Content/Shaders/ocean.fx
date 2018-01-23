@@ -60,18 +60,22 @@ struct VertexShaderOutput
 // The VertexShader.
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float3 Normal : NORMAL)
 {
-	VertexShaderOutput output;	
+	VertexShaderOutput output;
 	float heigh = -50.0f;
+	float dx = 0.0f;
+	float dy = 0.0f;
 	for (int i = 0; i < WAVENUMBER; i++)
 	{
 		heigh = heigh + (Wave[i].w * sin(time + Wave[i].z * (input.Position.x * Wave[i].x + input.Position.z * Wave[i].y)));
+		dx = dx + (Wave[i].x * cos(input.Position.x * Wave[i].x));
+		dy = dy + (Wave[i].y * cos(input.Position.y * Wave[i].y));
 	}
 	input.Position[1] = heigh;
 	float4 worldPosition = mul(input.Position, World);
 	float4 viewPosition = mul(worldPosition, View);
 	output.Position = mul(viewPosition, Projection);
-	///Normal = 
-	float3 normal = normalize(mul(Normal, World));
+	Normal = float3(dx, dy, 1.0f);
+	float3 normal = normalize(mul(float4(Normal, 1.0), World));
 	output.Normal = normal;
 	output.View = normalize(float4(CameraPosition, 1.0) - worldPosition);
 	output.TextureCoordinate = input.TextureCoordinate;
@@ -81,10 +85,13 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float3 Normal :
 // The Pixel Shader
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	float4 normal = float4(input.Normal, 1.0);
+	float3 normal = input.Normal;
+	float3 v = normalize( mul(input.Position - float4(CameraPosition, 1.0), World));
+	float3 r = normalize(2 * (dot(v, normal)*normal) - v);
+	
 	float4 diffuse = saturate(dot(-LightDirection,normal));
-	float4 reflect = normalize(2 * diffuse*normal - float4(LightDirection,1.0));
-	float4 specular = pow(saturate(dot(reflect,input.View)),15);
+	float4 reflect = normalize(2 * diffuse* float4(normal, 1.0) - float4(LightDirection,1.0));
+	float4 specular = pow(saturate(dot(reflect, float4(input.View, 1.0))),15);
 	float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
 	textureColor.a = 1;
 
@@ -98,6 +105,10 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	finColor2.a = TextureAlpha2;
 
 	float4 finColor3 = (finColor * TextureAlpha) + (finColor2 * TextureAlpha2);
+
+	float fresnel = pow(1.0 - dot(v, normal), 5.0);
+	//float3 reflection = textureCube(texEnv, r).xyz;
+	finColor3 = float4(lerp(float3(0.2, 0.25, 0.6), finColor3, fresnel),0.4);
 
 	return finColor3;
 }

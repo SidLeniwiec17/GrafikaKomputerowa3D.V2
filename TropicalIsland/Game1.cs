@@ -13,7 +13,7 @@ namespace TropicalIsland
     public class Game1 : Game
     {
         bool useDefaultBasicEffect = false;
-        bool IsFullScreen = false;
+        bool IsFullScreen = true;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Model palmModel;
@@ -62,7 +62,6 @@ namespace TropicalIsland
 
         //Geometric info
         Vertexes vertexes;
-        Vertexes vertexesSkyBox;
         Vertexes vertexesAlfa;
         Vertexes vertexesTest;
         int dnoVerticeCount = 0;
@@ -80,11 +79,13 @@ namespace TropicalIsland
             change = false;
             graphics = new GraphicsDeviceManager(this);
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
-            graphics.IsFullScreen = IsFullScreen;
-            if (graphics.IsFullScreen)
+            if (IsFullScreen)
             {
-                graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
-                graphics.PreferredBackBufferHeight = 1080;   // set this value to the desired height of your window
+                 graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
+                 graphics.PreferredBackBufferHeight = 1080;   // set this value to the desired height of your window
+                 //graphics.IsFullScreen = true;                     
+                //make it full screen... (borderless if you want to is an option as well)
+                this.Window.IsBorderless = true;
             }
             else
             {
@@ -113,7 +114,6 @@ namespace TropicalIsland
             vertexes = new Vertexes(GraphicsDevice);
             vertexesAlfa = new Vertexes(GraphicsDevice);
             vertexesTest = new Vertexes(GraphicsDevice);
-            vertexesSkyBox = new Vertexes(GraphicsDevice);
             //Sphere
             Sphere sphere = new Sphere(100.0f, new Vector3(0.0f, 120.0f, 0.0f), 16, 0.0f, 0.0f, (float)Math.PI, 1.5f);
             VertexPositionNormalTexture[] testSphere = sphere.Init(true);
@@ -141,7 +141,7 @@ namespace TropicalIsland
             vertexesAlfa.addObject(testOcean, true);
             vertexes.addObject(testdno, false);
             skyboxFirstVertIndex = vertexes.triangleVertices.Length;
-            vertexesSkyBox.addObject(skyCube, true);
+            vertexes.addObject(skyCube, false);
             vertexesTest.addObject(testCube, true);
 
             renderTarget = new RenderTarget2D(
@@ -205,19 +205,20 @@ namespace TropicalIsland
             return result;
         }
 
-        public void MoveSkyBox(Vector3 camPos)
+        public void MoveSkyBox(Vertexes vertexes, int indexStart, Vector3 camPos)
         {
             VertexPositionNormalTexture[] skypos = skyboxObject.initTestCubeSkybox(camPos);
-            // int counter = 0;
-            // for (int i = indexStart; i < indexStart + (6 * 6); i++)
-            // {
-            vertexesSkyBox.triangleVertices = skypos;
-            //      counter++;
-            //}
-            VertexBuffer newvertexBuffer = new VertexBuffer(graphics.GraphicsDevice, typeof(VertexPositionNormalTexture), vertexesSkyBox.triangleVertices.Length, BufferUsage.
+            int counter = 0;
+            for (int i = indexStart; i < indexStart + (6 * 6); i++)
+            {
+                vertexes.triangleVertices[i] = skypos[counter];
+                counter++;
+            }
+            vertexes.vertexBuffer.Dispose();
+            VertexBuffer newvertexBuffer = new VertexBuffer(graphics.GraphicsDevice, typeof(VertexPositionNormalTexture), vertexes.triangleVertices.Length, BufferUsage.
                               WriteOnly);
-            newvertexBuffer.SetData<VertexPositionNormalTexture>(vertexesSkyBox.triangleVertices);
-            vertexesSkyBox.vertexBuffer = newvertexBuffer;
+            newvertexBuffer.SetData<VertexPositionNormalTexture>(vertexes.triangleVertices);
+            vertexes.vertexBuffer = newvertexBuffer;
         }
 
         protected override void LoadContent()
@@ -259,15 +260,16 @@ namespace TropicalIsland
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
+            }
 
-            MoveSkyBox(camera.CamPosition);
+            MoveSkyBox(vertexes, skyboxFirstVertIndex, camera.CamPosition);
 
             if (Keyboard.GetState().IsKeyDown(Keys.N))
             {
                 change = true;
             }
-
 
             if (Keyboard.GetState().IsKeyDown(Keys.T))
             {
@@ -287,7 +289,6 @@ namespace TropicalIsland
             }
             // TODO: Add your update logic here
             camera.Update(gameTime);
-
             base.Update(gameTime);
         }
 
@@ -379,7 +380,6 @@ namespace TropicalIsland
 
                 GraphicsDevice.SetRenderTarget(renderTarget);
                 DrawScene(gameTime);
-                DrawSkyBox();
                 DoTheCubeMap();
                 this.EnvironmentMap = renderTarget;
                 glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
@@ -389,7 +389,6 @@ namespace TropicalIsland
             GraphicsDevice.Reset();
             GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
             DrawScene(gameTime);
-            DrawSkyBox();
             DrawTestCube(camera);
             DrawGlassPalm(camera);
             base.Draw(gameTime);
@@ -472,89 +471,14 @@ namespace TropicalIsland
                     GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexesAlfa.vertexBuffer.VertexCount);
                 }
             }
-        }
-
-        public void DrawSkyBox()
-        {
-            custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
-            custom_effect.Parameters["AmbientIntensity"].SetValue(1.0f);
-            custom_effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 1.0f, 0.0f));
-            custom_effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector4());
-            custom_effect.Parameters["DiffuseIntensity"].SetValue(0.0f);
-            custom_effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
-            custom_effect.Parameters["ModelTexture"].SetValue(skyFront);
-            custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
-            GraphicsDevice.SetVertexBuffer(vertexesSkyBox.vertexBuffer);
-            foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                if (vertexesSkyBox.vertexBuffer != null)
-                {
-                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexesSkyBox.vertexBuffer.VertexCount - 6);
-                }
-            }
-
-            custom_effect.Parameters["ModelTexture"].SetValue(skyLeft);
-            custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
-            foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                if (vertexes.vertexBuffer != null)
-                {
-                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 6, 12);
-                }
-            }
-
-            custom_effect.Parameters["ModelTexture"].SetValue(skyRight);
-            custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
-            foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                if (vertexes.vertexBuffer != null)
-                {
-                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 12, 18);
-                }
-            }
-
-            custom_effect.Parameters["ModelTexture"].SetValue(skyUp);
-            custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
-            foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                if (vertexes.vertexBuffer != null)
-                {
-                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 18, 24);
-                }
-            }
-
-            custom_effect.Parameters["ModelTexture"].SetValue(skyDown);
-            custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
-            foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                if (vertexes.vertexBuffer != null)
-                {
-                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 24, 30);
-                }
-            }
-
-            custom_effect.Parameters["ModelTexture"].SetValue(skyBack);
-            custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
-            foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                if (vertexes.vertexBuffer != null)
-                {
-                    GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 30, vertexesSkyBox.vertexBuffer.VertexCount);
-                }
-            }
-        }
+        }      
 
         public void DrawScene(GameTime gametime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             Texture2D mySolidColorTexture = new SolidColorTexture(GraphicsDevice, Color.Yellow);
+            int cubeOffset = 6 * 6;
 
             if (useDefaultBasicEffect)
             {
@@ -596,7 +520,77 @@ namespace TropicalIsland
                     }
                 }
 
+                custom_effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
+                custom_effect.Parameters["AmbientIntensity"].SetValue(1.0f);
+                custom_effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 1.0f, 0.0f));
+                custom_effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector4());
+                custom_effect.Parameters["DiffuseIntensity"].SetValue(0.0f);
+                custom_effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector4());
+                custom_effect.Parameters["ModelTexture"].SetValue(skyFront);
+                custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 0)), vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 1)));
+                    }
+                }
 
+                custom_effect.Parameters["ModelTexture"].SetValue(skyLeft);
+                custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 1)), vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 2)));
+                    }
+                }
+
+                custom_effect.Parameters["ModelTexture"].SetValue(skyRight);
+                custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 2)), vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 3)));
+                    }
+                }
+
+                custom_effect.Parameters["ModelTexture"].SetValue(skyUp);
+                custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 3)), vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 4)));
+                    }
+                }
+
+                custom_effect.Parameters["ModelTexture"].SetValue(skyDown);
+                custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 4)), vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 5)));
+                    }
+                }
+
+                custom_effect.Parameters["ModelTexture"].SetValue(skyBack);
+                custom_effect.Parameters["TextureAlpha"].SetValue(1.0f);
+                foreach (EffectPass pass in custom_effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    if (vertexes.vertexBuffer != null)
+                    {
+                        GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 5)), vertexes.vertexBuffer.VertexCount - ((cubeOffset / 6) * (6 - 6)));
+                    }
+                }
 
                 foreach (var p in palms)
                 {
