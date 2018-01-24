@@ -8,22 +8,21 @@ float4x4 Projection;
 float4 Wave[WAVENUMBER];
 // Light related
 float4 AmbientColor;
-float AmbientIntensity;
+float AmbientIntensity = 0.9f;
 float time;
+
+texture ModelTexture;
+texture ModelTexture2;
 
 float3 LightDirection;
 float4 DiffuseColor;
-float DiffuseIntensity;
+float DiffuseIntensity = 0.1f;
 
 float4 SpecularColor;
 float3 CameraPosition;
 
-texture ModelTexture;
 float TextureAlpha = 1.0f;
-
-texture ModelTexture2;
 float TextureAlpha2 = 1.0f;
-
 
 
 sampler2D textureSampler = sampler_state {
@@ -107,13 +106,11 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float4 finColor3 = (finColor * TextureAlpha) + (finColor2 * TextureAlpha2);
 
 	float fresnel = pow(1.0 - dot(v, normal), 5.0);
-	//float3 reflection = textureCube(texEnv, r).xyz;
 	finColor3 = float4(lerp(float3(0.2, 0.25, 0.6), finColor3, fresnel),0.4);
 
 	return finColor3;
 }
 
-// Our Techinique
 technique Technique2
 {
 	pass Pass2

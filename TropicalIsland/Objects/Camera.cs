@@ -25,7 +25,7 @@ namespace TropicalIsland.Objects
         public void Init(GraphicsDevice graphicsDevice)
         {
             CamTarget = new Vector3(0.0f, 0.0f, -1.0f);
-            CamPosition = new Vector3(0.0f, -25.0f, 100.0f);
+            CamPosition = new Vector3(0.0f, 0.0f, 200.0f);
             ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45f),
                                graphicsDevice.Viewport.AspectRatio, 1f, 4000f);
             ViewMatrix = Matrix.CreateLookAt(CamPosition, CamTarget,

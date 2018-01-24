@@ -21,6 +21,7 @@ namespace TropicalIsland
         Model rockModel;
         Texture2D rockTexture;
         Vector4[] fale;
+        TextureCube skyBoxCubeTexture;
 
         Model robotModel;
 
@@ -154,7 +155,7 @@ namespace TropicalIsland
 
             RefCubeMap = new RenderTargetCube(this.GraphicsDevice, 256, true, SurfaceFormat.Color, DepthFormat.Depth16, 1, RenderTargetUsage.PreserveContents);
 
-            fale = new Vector4[] { new Vector4(1.0f, 0.0f, 0.1f, 0.4f), new Vector4(1.0f, 1.0f, 0.2f, 0.3f), new Vector4(1.0f, 1.0f, 0.4f, 0.16f),
+            fale = new Vector4[] { new Vector4(1.0f, 0.0f, 0.005f, 0.6f), new Vector4(1.0f, 1.0f, 0.2f, 0.3f), new Vector4(1.0f, 1.0f, 0.4f, 0.16f),
             new Vector4(0.0f, 0.0f, 0.6f, 0.08f), new Vector4(-1.0f, 0.0f, 1.0f, 0.1f)};
             time = 0.0f;
             base.Initialize();
@@ -232,7 +233,6 @@ namespace TropicalIsland
             custom_effect = this.Content.Load<Effect>("Shaders/phong");
             alfa_effect = this.Content.Load<Effect>("Shaders/phongAlpha");
             glass_effect = this.Content.Load<Effect>("Shaders/glass");
-            ocean_effect = this.Content.Load<Effect>("Shaders/ocean");
 
             ocean1Texture = this.Content.Load<Texture2D>("Models/ocean1");
             ocean2Texture = this.Content.Load<Texture2D>("Models/ocean2");
@@ -247,6 +247,11 @@ namespace TropicalIsland
             skyDown = this.Content.Load<Texture2D>("SkyBox/down");
             skyBack = this.Content.Load<Texture2D>("SkyBox/back");
             texToChange = ocean3Texture;
+
+
+            //ocean_effect = this.Content.Load<Effect>("Shaders/ocean");
+            ocean_effect = this.Content.Load<Effect>("Shaders/ocean2");
+            skyBoxCubeTexture = this.Content.Load<TextureCube>("SkyBox/SkyBox");
 
             robotModel = Content.Load<Model>("Models/free_car_1");
             //robotModel = Content.Load<Model>("Models/rifle");
@@ -442,9 +447,9 @@ namespace TropicalIsland
             }
         }
 
-        public void DrawOcean(Effect alfa_effect, Camera camera, Texture2D ocean2texture, Texture2D textochange, GameTime gametime)
+        public void DrawOcean(Effect alfa_effect, Camera camera, Texture2D ocean2texture, Texture2D textochange, GameTime gametime, TextureCube tex)
         {
-            time = time + 1.5f * (float)gametime.ElapsedGameTime.TotalSeconds;
+            time = time + 1.8f * (float)gametime.ElapsedGameTime.TotalSeconds;
 
             alfa_effect.Parameters["World"].SetValue(camera.WorldMatrix);
             alfa_effect.Parameters["View"].SetValue(camera.ViewMatrix);
@@ -458,10 +463,11 @@ namespace TropicalIsland
             alfa_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
             alfa_effect.Parameters["ModelTexture"].SetValue(ocean2texture);
             alfa_effect.Parameters["TextureAlpha"].SetValue(0.65f);
-            alfa_effect.Parameters["ModelTexture2"].SetValue(textochange);
+            //alfa_effect.Parameters["ModelTexture2"].SetValue(textochange);
             alfa_effect.Parameters["TextureAlpha2"].SetValue(0.45f);
             alfa_effect.Parameters["Wave"].SetValue(fale);
             alfa_effect.Parameters["time"].SetValue(time);
+            alfa_effect.Parameters["SkyBoxTexture"].SetValue(tex);
             GraphicsDevice.SetVertexBuffer(vertexesAlfa.vertexBuffer);
             foreach (EffectPass pass in alfa_effect.CurrentTechnique.Passes)
             {
@@ -598,7 +604,7 @@ namespace TropicalIsland
                 }
 
                 DrawRocks();
-                DrawOcean(ocean_effect, camera, ocean2Texture, texToChange, gametime);
+                DrawOcean(ocean_effect, camera, ocean2Texture, texToChange, gametime, skyBoxCubeTexture);
             }
         }
     }
