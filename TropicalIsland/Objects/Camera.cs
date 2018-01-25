@@ -93,6 +93,14 @@ namespace TropicalIsland.Objects
             UpdateViewMatrix();
         }
 
+        public void UpdatePosition(Vector3 vectorToAdd, float leftRot, float upRot)
+        {
+            Matrix cameraRotation = Matrix.CreateRotationX(upDownRotation+ upRot) * Matrix.CreateRotationY(leftRightRotation+ leftRot);
+            Vector3 cameraRotatedVector = Vector3.Transform(vectorToAdd, cameraRotation);
+            CamPosition += cameraRotatedVector;
+            UpdateViewMatrix();
+        }
+
         private void UpdateViewMatrix()
         {
             Matrix cameraRotation = Matrix.CreateRotationX(upDownRotation) * Matrix.CreateRotationY(leftRightRotation);

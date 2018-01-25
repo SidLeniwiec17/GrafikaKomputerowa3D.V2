@@ -31,7 +31,7 @@ namespace TropicalIsland
         Texture2D ocean2Texture;
         Texture2D ocean3Texture;
         Texture2D dnoTexture;
-        Texture2D EnvironmentMap;
+        TextureCube EnvironmentMap;
 
         SkyBox skyboxObject;
 
@@ -82,10 +82,10 @@ namespace TropicalIsland
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             if (IsFullScreen)
             {
-                 graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
-                 graphics.PreferredBackBufferHeight = 1080;   // set this value to the desired height of your window
-                 //graphics.IsFullScreen = true;                     
-                //make it full screen... (borderless if you want to is an option as well)
+                graphics.PreferredBackBufferWidth = 1920;  // set this value to the desired width of your window
+                graphics.PreferredBackBufferHeight = 1080;   // set this value to the desired height of your window
+                                                             //graphics.IsFullScreen = true;                     
+                                                             //make it full screen... (borderless if you want to is an option as well)
                 this.Window.IsBorderless = true;
             }
             else
@@ -187,7 +187,7 @@ namespace TropicalIsland
                 palms.Add(new Object3D(new Vector3(x, y, z), 0.0f, i * 1.0f, 0.0f, 0.04f));
             }
             //glassPalm = new Object3D(new Vector3(85.0f, -15.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.65f);
-            glassPalm = new Object3D(new Vector3(60.0f, -10.0f, 0.0f), 0.0f, 0.0f, 0.0f, 10.0f);
+            glassPalm = new Object3D(new Vector3(60.0f, -20.0f, 0.0f), 0.0f, 0.0f, 0.0f, 10.0f);
         }
 
         private void InitRocks()
@@ -297,14 +297,24 @@ namespace TropicalIsland
             base.Update(gameTime);
         }
 
-        private void DoTheCubeMap()
+        private void DoTheCubeMap(GameTime gameTime)
         {
-            Matrix viewMatrix;
-            var pos = new Vector3(-450.0f, -20.0f, 0.0f);
-            Matrix world = Matrix.CreateTranslation(new Vector3(0.0f, 0.0f, 0.0f));
+            var originalPos = camera.CamPosition;
+            first = false;
+            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
+            //Turn off culling so we see both sides of our rendered triangle
+            RasterizerState rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            GraphicsDevice.RasterizerState = rasterizerState;
+
+            camera.CamPosition = new Vector3(60.0f, -20.0f, 0.0f);
+            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
+
+            //GraphicsDevice.SetRenderTarget(renderTarget);
+            
             CubeMapFace cubeMapFace = CubeMapFace.NegativeX;
-            glass_effect.Parameters["World"].SetValue(camera.WorldMatrix);
-            glass_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            //DrawScene(gameTime);
 
             for (int i = 0; i < 6; i++)
             {
@@ -314,60 +324,63 @@ namespace TropicalIsland
                 {
                     case CubeMapFace.NegativeX:
                         {
-                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Right, Vector3.Up);
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), -(float)(Math.PI / 2), 0.0f);
+                            //viewMatrix = Matrix.CreateLookAt(pos, Vector3.Right, Vector3.Up);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
-                            this.GraphicsDevice.Clear(Color.White);
-                            glass_effect.Parameters["View"].SetValue(viewMatrix);
-                            GraphicsDevice.SetRenderTarget(null);
-                            break;
-                        }
-                    case CubeMapFace.NegativeY:
-                        {
-                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Up, Vector3.Forward);
-                            this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
-                            this.GraphicsDevice.Clear(Color.White);
-                            glass_effect.Parameters["View"].SetValue(viewMatrix);
-                            GraphicsDevice.SetRenderTarget(null);
-                            break;
-                        }
-                    case CubeMapFace.NegativeZ:
-                        {
-                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Forward, Vector3.Up);
-                            this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
-                            this.GraphicsDevice.Clear(Color.White);
-                            glass_effect.Parameters["View"].SetValue(viewMatrix);
-                            GraphicsDevice.SetRenderTarget(null);
-                            break;
-                        }
-                    case CubeMapFace.PositiveX:
-                        {
-                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Left, Vector3.Up);
-                            this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
-                            this.GraphicsDevice.Clear(Color.White);
-                            glass_effect.Parameters["View"].SetValue(viewMatrix);
-                            GraphicsDevice.SetRenderTarget(null);
+                            DrawScene(gameTime);
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), (float)(Math.PI / 2), 0.0f);
                             break;
                         }
                     case CubeMapFace.PositiveY:
                         {
-                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Down, Vector3.Backward);
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, -(float)(Math.PI / 2));
+                            //viewMatrix = Matrix.CreateLookAt(pos, Vector3.Down, Vector3.Backward);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
-                            this.GraphicsDevice.Clear(Color.White);
-                            glass_effect.Parameters["View"].SetValue(viewMatrix);
-                            GraphicsDevice.SetRenderTarget(null);
+                            DrawScene(gameTime);
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, (float)(Math.PI / 2));
                             break;
                         }
+                    case CubeMapFace.NegativeY:
+                        {                            
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, (float)(Math.PI / 2));
+                            //viewMatrix = Matrix.CreateLookAt(pos, Vector3.Up, Vector3.Forward);
+                            this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
+                            DrawScene(gameTime);
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, -(float)(Math.PI / 2));
+                            break;
+                        }
+                    case CubeMapFace.NegativeZ:
+                        {
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), (float)(Math.PI / 2), 0.0f);
+                            //viewMatrix = Matrix.CreateLookAt(pos, Vector3.Forward, Vector3.Up);
+                            this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
+                            DrawScene(gameTime);
+                            break;
+                        }
+                    case CubeMapFace.PositiveX:
+                        {
+                            //viewMatrix = Matrix.CreateLookAt(pos, Vector3.Left, Vector3.Up); 
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), (float)(Math.PI / 2), 0.0f);
+                            this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
+                            DrawScene(gameTime);
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), -(float)(Math.PI / 2), 0.0f);
+                            break;
+                        }                    
                     case CubeMapFace.PositiveZ:
                         {
-                            viewMatrix = Matrix.CreateLookAt(new Vector3(0.0f, 0.0f, 0.0f), Vector3.Backward, Vector3.Up);
+                            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), (float)(Math.PI), 0.0f);
+                            //viewMatrix = Matrix.CreateLookAt(pos, Vector3.Backward, Vector3.Up);
                             this.GraphicsDevice.SetRenderTarget(RefCubeMap, cubeMapFace);
-                            this.GraphicsDevice.Clear(Color.White);
-                            glass_effect.Parameters["View"].SetValue(viewMatrix);
-                            GraphicsDevice.SetRenderTarget(null);
+                            DrawScene(gameTime);
                             break;
                         }
                 }
             }
+            this.EnvironmentMap = RefCubeMap;
+            glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
+
+            camera.CamPosition = originalPos;
+            camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -375,19 +388,8 @@ namespace TropicalIsland
             GraphicsDevice.SetVertexBuffer(null);
             if (first)
             {
+                DoTheCubeMap(gameTime);
                 first = false;
-                GraphicsDevice.Clear(Color.Black);
-                GraphicsDevice.SetVertexBuffer(vertexes.vertexBuffer);
-                //Turn off culling so we see both sides of our rendered triangle
-                RasterizerState rasterizerState = new RasterizerState();
-                rasterizerState.CullMode = CullMode.None;
-                GraphicsDevice.RasterizerState = rasterizerState;
-
-                GraphicsDevice.SetRenderTarget(renderTarget);
-                DrawScene(gameTime);
-                DoTheCubeMap();
-                this.EnvironmentMap = renderTarget;
-                glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
             }
             GraphicsDevice.SetVertexBuffer(null);
             GraphicsDevice.SetRenderTarget(null);
@@ -477,7 +479,7 @@ namespace TropicalIsland
                     GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexesAlfa.vertexBuffer.VertexCount);
                 }
             }
-        }      
+        }
 
         public void DrawScene(GameTime gametime)
         {
