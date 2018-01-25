@@ -101,9 +101,6 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float3 reflection = texCUBE(SkyBoxSampler, r).xyz;
 	float4 finColor3 = float4(lerp(float3(0.2, 0.25, 0.6), reflection, fresnel),0.5);
 
-	float4 diffuse = saturate(dot(-LightDirection, normal));
-	float4 reflect = normalize(2 * diffuse* float4(normal, 1.0) - float4(LightDirection, 1.0));
-	float4 specular = pow(saturate(dot(reflect, float4(input.View, 1.0))), 15);
 	float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
 	textureColor.a = 1;
 	

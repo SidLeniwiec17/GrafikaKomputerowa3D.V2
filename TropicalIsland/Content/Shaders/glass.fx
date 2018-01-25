@@ -7,20 +7,21 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
+float3 CameraPosition;
 float3 LightDirection = float3(1, 0, 0);
 
-texture BasicTexture;
 float3 DiffuseColor = float3(.85, .85, .85);
 
-sampler BasicTextureSampler = sampler_state
-{
-	texture = <BasicTexture>;
-};
 
-texture ReflectionCubeMap;
-sampler ReflectionCubeMapSampler = sampler_state
+Texture ReflectionCubeMap;
+samplerCUBE ReflectionCubeMapSampler = sampler_state
 {
 	texture = <ReflectionCubeMap>;
+	magfilter = LINEAR;
+	minfilter = LINEAR;
+	mipfilter = LINEAR;
+	AddressU = Mirror;
+	AddressV = Mirror;
 };
 
 struct VertexShaderInput
@@ -55,11 +56,19 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	//float Diff = saturate(dot(input.UV, LightDirection));	
-	float4 Diff = saturate(dot(-LightDirection, input.Normal));
-	float3 Reflect = normalize(2 * Diff * (input.Normal - LightDirection));
-	float3 ReflectColor = tex2D(ReflectionCubeMapSampler, Reflect);
-	return float4(ReflectColor,1);
+	float3 v = normalize(mul(input.Position - float4(CameraPosition, 1.0), World));
+	float3 r = 1.14;
+	float3 d = mul(input.Normal, v);
+	float3 reflect = 2 * input.Normal * d - v;
+	float3 z = (r*d - sqrt(1 - pow(r, 2) * (1 - pow(d, 2))))*input.Normal - r*v;
+	
+	float3 reflection = texCUBE(ReflectionCubeMapSampler, z).xyz;
+	float4 finColor3 = float4(reflection, 0.5);
+
+	float4 diffuse = saturate(dot(-LightDirection, input.Normal));
+
+	finColor3 = (diffuse * 0.1) + (finColor3 * 0.9);
+	return finColor3;
 }
 
 technique Ambient

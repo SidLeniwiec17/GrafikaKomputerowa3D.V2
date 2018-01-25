@@ -31,7 +31,7 @@ namespace TropicalIsland
         Texture2D ocean2Texture;
         Texture2D ocean3Texture;
         Texture2D dnoTexture;
-        TextureCube EnvironmentMap;
+        Texture2D EnvironmentMap;
 
         SkyBox skyboxObject;
 
@@ -311,10 +311,10 @@ namespace TropicalIsland
             camera.CamPosition = new Vector3(60.0f, -20.0f, 0.0f);
             camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
 
-            //GraphicsDevice.SetRenderTarget(renderTarget);
+            GraphicsDevice.SetRenderTarget(renderTarget);
             
             CubeMapFace cubeMapFace = CubeMapFace.NegativeX;
-            //DrawScene(gameTime);
+            DrawScene(gameTime);
 
             for (int i = 0; i < 6; i++)
             {
@@ -376,8 +376,8 @@ namespace TropicalIsland
                         }
                 }
             }
-            this.EnvironmentMap = RefCubeMap;
-            glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
+            this.EnvironmentMap = renderTarget;
+            glass_effect.Parameters["ReflectionCubeMap"].SetValue(skyBoxCubeTexture);
 
             camera.CamPosition = originalPos;
             camera.UpdatePosition(new Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
@@ -387,10 +387,15 @@ namespace TropicalIsland
         {
             GraphicsDevice.SetVertexBuffer(null);
             if (first)
-            {
-                DoTheCubeMap(gameTime);
-                first = false;
-            }
+             {
+                 DoTheCubeMap(gameTime);
+                 first = false;
+             }
+            RasterizerState rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            GraphicsDevice.RasterizerState = rasterizerState;
+            //glass_effect.Parameters["ReflectionCubeMap"].SetValue(EnvironmentMap);
+            glass_effect.Parameters["ReflectionCubeMap"].SetValue(skyBoxCubeTexture);
             GraphicsDevice.SetVertexBuffer(null);
             GraphicsDevice.SetRenderTarget(null);
             GraphicsDevice.Reset();
@@ -403,6 +408,13 @@ namespace TropicalIsland
 
         public void DrawGlassPalm(Camera camera)
         {
+
+            glass_effect.Parameters["ReflectionCubeMap"].SetValue(skyBoxCubeTexture);
+            glass_effect.Parameters["World"].SetValue(camera.WorldMatrix);
+            glass_effect.Parameters["View"].SetValue(camera.ViewMatrix);
+            glass_effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            glass_effect.Parameters["CameraPosition"].SetValue(camera.CamPosition);
+            glass_effect.Parameters["LightDirection"].SetValue(new Vector3(0.0f, 0.5f, 1.0f));
             glassPalm.DrawModelWithGlassEffect(robotModel, camera, glass_effect);
         }
 
@@ -429,7 +441,6 @@ namespace TropicalIsland
                 {
                     GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexesTest.vertexBuffer.VertexCount);
                 }
-
             }
         }
 
